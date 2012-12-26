@@ -6,3 +6,9 @@
 RHITUMC/RHITUMC/settings.py
 
 RHITUMC/RHITUMC/wsgi.py
+
+.DS_Store
+
+.project
+
+.pydevproject
