@@ -53,13 +53,15 @@ class Attendee(models.Model):
     requires_housing = models.BooleanField()
     comments = models.TextField(blank=True)
     
+    def __unicode__(self):
+        return '%s, %s' % (self.last_name, self.first_name) 
+    
     def clean(self):
         if self.is_submitting_talk:
             if self.paper_title == '':
                 raise ValidationError(u'Paper Title is required if attendee is submitting a talk!')
             if self.paper_abstract == '':
                 raise ValidationError(u'Paper Abstract is required if attendee is submitting a talk!')
-                
 
 class Conference(models.Model):
     name = models.CharField(max_length=100)
