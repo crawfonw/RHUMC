@@ -1,22 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-'''
-class UserProfile(User): #user.get_profile().whatever
-    
-    STATUS = (('Student', 'Student'),
-              ('Faculty', 'Faculty'),)
-    
-    user = models.OneToOneField(User)
-    school = models.CharField(max_length=100)
-    user_type = models.CharField(choices=STATUS, max_length=7)
-    
-def create_user_profile(sender, instance, created, **kwargs):  
-    if created:  
-        profile, created = UserProfile.objects.get_or_create(user=instance)
-        
-post_save.connect(create_user_profile, sender=User)
-'''
 
 class Attendee(models.Model):
     ETHNICITY = (('American Indian or Alaska Native', 'American Indian or Alaska Native'),

@@ -5,30 +5,28 @@ from models import Attendee, Conference
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
     list_per_page = 50
-
-'''
-class MapAdmin(FengShuiAdmin):
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'owner', 'game', 'visibility',)
-        }),
-        ('Share Options', {
-            'classes': ('collapse',),
-            'fields': ('read_shares', 'write_shares',)
-        }),
-        ('Associated Objects', {
-            'classes': ('collapse',),
-            'fields': ('floors',),
-        }),
-    )
-    filter_horizontal = ('read_shares', 'write_shares', 'floors',)
-    list_display = ('name', 'owner', 'game', 'visibility',)
-    list_filter = ('visibility',)
-    search_fields = ('name', 'owner', 'game',)
-'''
     
 class AttendeeAdmin(FengShuiAdmin):
+    fieldsets = (
+                  (None, {
+                          'fields': ('owner', 'first_name', 'last_name', ),
+                          }),
+                  ('School Information', {
+                                          'classes': ('collapse',),
+                                          'fields': ('school', 'size_of_institute', 'attendee_type', 'year',),
+                                          }),
+                  ('Talk Information', {
+                                        'classes': ('collapse',),
+                                        'fields': ('is_submitting_talk', 'paper_title', 'paper_abstract', 'is_submitted_for_best_of_competition',),
+                                        }),
+                  ('Miscellaneous', {
+                                     'classes': ('collapse',),
+                                     'fields': ('dietary_restrictions', 'requires_housing', 'comments',),
+                                     })
+                  
+                  )
     list_display = ('owner', 'last_name', 'first_name', 'school', 'attendee_type', 'is_submitting_talk',)
+    list_filter = ('owner', 'school', 'attendee_type', 'is_submitting_talk',)
 
 class ConferenceAdmin(FengShuiAdmin):
     filter_horizontal = ('participants',)
