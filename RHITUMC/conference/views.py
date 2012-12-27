@@ -25,11 +25,36 @@ def index(request):
                                },
                                RequestContext(request))
 
+@login_required
 def register_attendee(request):
     if request.method == 'POST':
         form = AttendeeForm(request.POST)
         if form.is_valid():
-            form.cleaned_data['tags']
+            f_email = form.cleaned_data['email']
+            f_first_name = form.cleaned_data['first_name']
+            f_last_name = form.cleaned_data['last_name']
+            f_sex = form.cleaned_data['sex']
+            f_school = form.cleaned_data['school']
+            f_size_of_institute = form.cleaned_data['size_of_institute']
+            f_attendee_type = form.cleaned_data['attendee_type']
+            f_year = form.cleaned_data['year']
+            f_is_submitting_talk = form.cleaned_data['is_submitting_talk']
+            f_paper_title = form.cleaned_data['paper_title']
+            f_paper_abstract = form.cleaned_data['paper_abstract']
+            f_is_submitted_for_best_of_competition = form.cleaned_data['is_submitted_for_best_of_competition']
+            f_dietary_restrictions = form.cleaned_data['dietary_restrictions']
+            f_requires_housing = form.cleaned_data['requires_housing']
+            f_comments = form.cleaned_data['comments']
+            
+            Attendee.objects.create(owner=request.user, email=f_email, first_name=f_first_name, last_name=f_last_name, \
+                                    sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
+                                    attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
+                                    paper_title=f_paper_title, paper_abstract=f_paper_abstract, \
+                                    is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
+                                    dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
+                                    )
+            print 'Success'
+            
     else:
         form = AttendeeForm()
     return render_to_response('conference/registration-form.html',

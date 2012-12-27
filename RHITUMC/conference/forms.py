@@ -33,7 +33,7 @@ class AttendeeForm(forms.Form):
     is_submitting_talk = forms.BooleanField(required=False)
     paper_title = forms.CharField(max_length=100, required=False)
     paper_abstract = forms.CharField(required=False, widget=forms.Textarea)
-    is_submitted_for_best_of_competition = forms.BooleanField()
+    is_submitted_for_best_of_competition = forms.BooleanField(required=False)
     
     dietary_restrictions = forms.CharField(required=False, widget=forms.Textarea)
     requires_housing = forms.BooleanField(required=False)
@@ -41,7 +41,7 @@ class AttendeeForm(forms.Form):
     
     def clean(self):
         if self.cleaned_data.get('email') != self.cleaned_data.get('confirm_email'):
-            msg = u'emails addresses must match!'
+            msg = u'Email addresses must match!'
             self._errors['email'] = self.error_class([msg])
             self._errors['confirm_email'] = self.error_class([msg])
             del self.cleaned_data['email']
