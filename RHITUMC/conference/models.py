@@ -72,3 +72,14 @@ class Conference(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+class PageLink(models.Model):
+    title = models.CharField(max_length=100)
+    link = models.URLField()
+    
+    def __unicode__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = 'Page Link'
+        verbose_name_plural = 'Page Links'

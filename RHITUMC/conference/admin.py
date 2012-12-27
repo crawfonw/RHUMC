@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Attendee, Conference
+from models import Attendee, Conference, PageLink
 
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
@@ -35,3 +35,4 @@ class ConferenceAdmin(FengShuiAdmin):
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
+admin.site.register(PageLink)

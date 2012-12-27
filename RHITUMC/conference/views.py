@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.db.models import Q
 
 def index(request):
-    render_to_response('conference/index.html',
+    return render_to_response('conference/index.html',
                               {'page_title': 'Item Drawer',
                                },
                                RequestContext(request))
