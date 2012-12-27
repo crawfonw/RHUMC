@@ -22,7 +22,7 @@
                  <td> <table border="0" cellspacing="0" cellpadding="0">
                     <tr> <td> <font color="#800000" size="+2"> Rose-Hulman Institute of Technology </font> </td> </tr>
                     <tr> <td> <font color="#800000" size="+2"> Undergraduate Mathematics Conference </font> </td> </tr>
-                    <tr> <td> <font color="#800000" size="+2"> {{ CONF.start_date|date:"N d" }} - {{ CONF.end_date|date:"d, Y" }}</font> </td> </tr>
+                    {% if CONF %}<tr> <td> <font color="#800000" size="+2"> {{ CONF.start_date|date:"N d" }} - {{ CONF.end_date|date:"d, Y" }}</font> </td> </tr>{% endif %}
                     </table> </td> 
               </tr>
       </table> </td>
@@ -56,6 +56,11 @@
       <!-- Content of Page -->
       <table>
       <tr> <td>
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
 {% block content %}
 {% endblock %}
 <!-- Virtual Footer -->

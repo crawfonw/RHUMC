@@ -31,7 +31,7 @@ def index(request):
 def register_attendee(request):
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
-        text = 'We are sorry, but there is no current conference scheduled. Please check back later.'
+        text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
         return render_to_response('conference/generic-text.html',
                               {'page_title': 'Registration',
                                'text': text,
@@ -56,7 +56,6 @@ def register_attendee(request):
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
             
-            
             Attendee.objects.create(owner=request.user, conference=c[0], \
                                     email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
@@ -65,7 +64,8 @@ def register_attendee(request):
                                     is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
                                     )
-            print 'Success'
+            messages.add_message(request, messages.SUCCESS, 'Thanks, you are now registered for the %s conference!' % c[0].format_date())
+            return HttpResponseRedirect(reverse('conference-index'))
             
     else:
         form = AttendeeForm()

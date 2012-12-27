@@ -9,7 +9,7 @@ class FengShuiAdmin(admin.ModelAdmin):
 class AttendeeAdmin(FengShuiAdmin):
     fieldsets = (
                   (None, {
-                          'fields': ('owner', 'first_name', 'last_name', 'email', 'sex',),
+                          'fields': ('owner', 'conference', 'first_name', 'last_name', 'email', 'sex',),
                           }),
                   ('School Information', {
                                           'classes': ('collapse',),
@@ -25,8 +25,8 @@ class AttendeeAdmin(FengShuiAdmin):
                                      })
                   
                   )
-    list_display = ('__unicode__', 'owner', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing',)
-    list_filter = ('owner', 'attendee_type', 'is_submitting_talk', 'requires_housing', )
+    list_display = ('__unicode__', 'owner', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
+    list_filter = ('owner', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
 
 class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date',)

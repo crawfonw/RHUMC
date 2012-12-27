@@ -10,6 +10,12 @@ class Conference(models.Model):
     def __unicode__(self):
         return self.name
     
+    def format_date(self):
+        if self.start_date.month == self.end_date.month:
+            return '%s %s - %s, %s' % (self.start_date.month, self.start_date.day, self.end_date.day, self.end_date.year)
+        else:
+            return '%s %s - %s %s, %s' % (self.start_date.month, self.start_date.day, self.end_date.month ,self.end_date.day, self.end_date.year)
+    
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError(u'The end date may not be before the start date.')
