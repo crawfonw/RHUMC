@@ -3,4 +3,5 @@ from views import *
 
 urlpatterns = patterns('conference.views',
     url(r'^$', index, name='conference-index'),
+    url(r'^register/$', register_attendee, name='conference-registration'),
 )

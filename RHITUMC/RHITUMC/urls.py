@@ -6,7 +6,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'RHITUMC.views.home', name='home'),
-    url(r'^$', include('conference.urls')),
+    url(r'^', include('conference.urls')),
     
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),

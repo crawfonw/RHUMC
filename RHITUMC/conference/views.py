@@ -16,8 +16,24 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile 
 from django.db.models import Q
 
+from forms import AttendeeForm
+from models import Attendee
+
 def index(request):
     return render_to_response('conference/index.html',
-                              {'page_title': 'Item Drawer',
+                              {'page_title': 'Home',
+                               },
+                               RequestContext(request))
+
+def register_attendee(request):
+    if request.method == 'POST':
+        form = AttendeeForm(request.POST)
+        if form.is_valid():
+            form.cleaned_data['tags']
+    else:
+        form = AttendeeForm()
+    return render_to_response('conference/registration-form.html',
+                              {'page_title': 'Registration',
+                               'form': form,
                                },
                                RequestContext(request))

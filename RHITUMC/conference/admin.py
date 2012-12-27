@@ -9,7 +9,7 @@ class FengShuiAdmin(admin.ModelAdmin):
 class AttendeeAdmin(FengShuiAdmin):
     fieldsets = (
                   (None, {
-                          'fields': ('owner', 'first_name', 'last_name', ),
+                          'fields': ('owner', 'first_name', 'last_name', 'email', 'sex',),
                           }),
                   ('School Information', {
                                           'classes': ('collapse',),
