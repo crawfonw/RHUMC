@@ -25,11 +25,10 @@ class AttendeeAdmin(FengShuiAdmin):
                                      })
                   
                   )
-    list_display = ('owner', 'last_name', 'first_name', 'school', 'attendee_type', 'is_submitting_talk',)
-    list_filter = ('owner', 'school', 'attendee_type', 'is_submitting_talk',)
+    list_display = ('__unicode__', 'owner', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing',)
+    list_filter = ('owner', 'attendee_type', 'is_submitting_talk', 'requires_housing', )
 
 class ConferenceAdmin(FengShuiAdmin):
-    filter_horizontal = ('participants',)
     list_display = ('name', 'start_date', 'end_date',)
     search_fields = ('name',)
 

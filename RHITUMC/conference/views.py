@@ -16,17 +16,27 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile 
 from django.db.models import Q
 
+from datetime import datetime
+
 from forms import AttendeeForm
-from models import Attendee
+from models import Attendee, Conference
 
 def index(request):
     return render_to_response('conference/index.html',
-                              {'page_title': 'Home',
+                              {'page_title': 'Rose-Hulman Undergraduate Math Conference',
                                },
                                RequestContext(request))
 
 @login_required
 def register_attendee(request):
+    c = Conference.objects.filter(end_date__gte=datetime.now())
+    if c.count() == 0:
+        text = 'We are sorry, but there is no current conference scheduled. Please check back later.'
+        return render_to_response('conference/generic-text.html',
+                              {'page_title': 'Registration',
+                               'text': text,
+                               },
+                               RequestContext(request))
     if request.method == 'POST':
         form = AttendeeForm(request.POST)
         if form.is_valid():
@@ -46,7 +56,9 @@ def register_attendee(request):
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
             
-            Attendee.objects.create(owner=request.user, email=f_email, first_name=f_first_name, last_name=f_last_name, \
+            
+            Attendee.objects.create(owner=request.user, conference=c[0], \
+                                    email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
                                     attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
                                     paper_title=f_paper_title, paper_abstract=f_paper_abstract, \

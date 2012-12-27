@@ -2,6 +2,21 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
+class Conference(models.Model):
+    name = models.CharField(max_length=100)
+    start_date = models.DateField(help_text='yyyy-mm-dd')
+    end_date = models.DateField(help_text='yyyy-mm-dd')
+    
+    def __unicode__(self):
+        return self.name
+    
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError(u'The end date may not be before the start date.')
+    
+    class Meta:
+        ordering = ['start_date', 'end_date']
+
 class Attendee(models.Model):
     ETHNICITY = (('American Indian or Alaska Native', 'American Indian or Alaska Native'),
                  ('Asian', 'Asian'),
@@ -33,6 +48,7 @@ class Attendee(models.Model):
             )
     
     owner = models.ForeignKey(User) #whomever created this attendee
+    conference = models.ForeignKey(Conference)
     
     email = models.EmailField()
     first_name = models.CharField(max_length=100)
@@ -62,16 +78,9 @@ class Attendee(models.Model):
                 raise ValidationError(u'Paper Title is required if attendee is submitting a talk!')
             if self.paper_abstract == '':
                 raise ValidationError(u'Paper Abstract is required if attendee is submitting a talk!')
-
-class Conference(models.Model):
-    name = models.CharField(max_length=100)
-    start_date = models.DateField(help_text='yyyy-mm-dd')
-    end_date = models.DateField(help_text='yyyy-mm-dd')
-    
-    participants = models.ManyToManyField(Attendee)
-    
-    def __unicode__(self):
-        return self.name
+            
+    class Meta:
+        ordering = ['last_name', 'first_name']
     
 class PageLink(models.Model):
     title = models.CharField(max_length=100)
