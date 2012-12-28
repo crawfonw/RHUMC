@@ -1,12 +1,12 @@
 from datetime import datetime
 #from django.db.models import F
 
-from conference.models import Conference, PageLink
+from conference.models import Conference, Page
 
 def links_context_processor(request):
     
     return {
-            'LINKS': PageLink.objects.all()
+            'PAGES': Page.objects.all()
             }
     
 def conference_context_processor(request):

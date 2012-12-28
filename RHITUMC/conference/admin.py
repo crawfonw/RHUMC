@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Attendee, Conference, PageLink
+from models import Attendee, Conference, Page
 
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
@@ -28,10 +28,25 @@ class AttendeeAdmin(FengShuiAdmin):
     list_display = ('__unicode__', 'owner', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
     list_filter = ('owner', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
 
+class PageAdmin(FengShuiAdmin):
+    fieldsets = (
+                  (None, {
+                          'fields': ('title',),
+                          }),
+                  ('Link Settings', {
+                                          'classes': ('collapse',),
+                                          'fields': ('is_link', 'link',),
+                                          }),
+                  ('Page Settings', {
+                                        'classes': ('collapse',),
+                                        'fields': ('on_sidebar', 'page_text',),
+                                        }),
+                  )
+
 class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date',)
     search_fields = ('name',)
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
-admin.site.register(PageLink)
+admin.site.register(Page, PageAdmin)

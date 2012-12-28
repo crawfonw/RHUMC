@@ -12,9 +12,9 @@ class Conference(models.Model):
     
     def format_date(self):
         if self.start_date.month == self.end_date.month:
-            return '%s %s - %s, %s' % (self.start_date.month, self.start_date.day, self.end_date.day, self.end_date.year)
+            return '%s - %s' % (self.start_date.strftime('%b %d'), self.end_date.strftime('%d, %Y'))
         else:
-            return '%s %s - %s %s, %s' % (self.start_date.month, self.start_date.day, self.end_date.month ,self.end_date.day, self.end_date.year)
+            return '%s - %s' % ((self.start_date.strftime('%b %d'), self.end_date.strftime('%b %d, %Y')))
     
     def clean(self):
         if self.end_date < self.start_date:
@@ -88,13 +88,19 @@ class Attendee(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
     
-class PageLink(models.Model):
+class Page(models.Model):
     title = models.CharField(max_length=100)
-    link = models.URLField()
+    is_link = models.BooleanField()
+    link = models.URLField(blank=True, help_text='Only for external URLs.')
+    on_sidebar = models.BooleanField(help_text='Should this page show up on the main sidebar?')
+    page_text = models.TextField(blank=True, help_text='For internal pages.')
     
     def __unicode__(self):
         return self.title
     
-    class Meta:
-        verbose_name = 'Page Link'
-        verbose_name_plural = 'Page Links'
+    def clean(self):
+        if self.is_link == True and self.link == None:
+            raise ValidationError(u'You must specify a URL for the indicated link.')
+        
+        
+        
