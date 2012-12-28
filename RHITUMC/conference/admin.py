@@ -42,7 +42,7 @@ class PageAdmin(FengShuiAdmin):
                   )
 
 class ConferenceAdmin(FengShuiAdmin):
-    list_display = ('name', 'start_date', 'end_date',)
+    list_display = ('name', 'start_date', 'end_date', 'past_conference',)
     search_fields = ('name',)
 
 admin.site.register(Attendee, AttendeeAdmin)

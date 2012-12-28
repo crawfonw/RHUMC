@@ -20,6 +20,10 @@ class Conference(models.Model):
             return '%s - %s' % (self.start_date.strftime('%b %d'), self.end_date.strftime('%d, %Y'))
         else:
             return '%s - %s' % ((self.start_date.strftime('%b %d'), self.end_date.strftime('%b %d, %Y')))
+        
+    def _is_in_past(self):
+        return self.end_date < datetime.date.today()
+    past_conference = property(_is_in_past)
     
     def clean(self):
         if self.end_date < self.start_date:
@@ -99,10 +103,13 @@ class Room(models.Model):
         unique_together = (('building', 'room_number',),)
 
     def __unicode__(self):
-        return '%s %s' % (self.building, self.name)
+        return '%s %s' % (self.building, self.room_number)
 
 class Schedule(models.Model):
-    conference = models.ForeignKey(Conference)
+    conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
+    
+    def __unicode__(self):
+        return '%s schedule' % self.conference
 
 class Day(models.Model):
     schedule = models.ForeignKey(Schedule)
@@ -113,22 +120,24 @@ class Day(models.Model):
         unique_together = (('schedule', 'date',),)
 
     def __unicode__(self):
-        return '%s on %s' % (self.schedule, self.date)
+        return '%s during %s' % (self.date, self.schedule)
     
     def clean(self):
-        pass
+        if self.date > self.schedule.conference.end_date or self.date < self.schedule.conference.start_date:
+            raise ValidationError(u"This day's date must be within the Schedule's conference dates.")
 
 class TimeSlot(models.Model):
+    name = models.CharField(max_length=100)
     day = models.ForeignKey(Day)
     start_time = models.TimeField(help_text='hh:mm')
     end_time = models.TimeField(help_text='hh:mm')
     
     def clean(self):
-        if self.end_date < self.start_date:
+        if self.end_time < self.start_time:
             raise ValidationError(u'The end date may not be before the start date.')
         
 class Session(models.Model):
-    speaker = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__start_date__gte=datetime.date.today)) #is it always one person? filter attendees to just the certain conference
+    speaker = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today)) #is it always one person? filter attendees to just the certain conference
     room = models.ForeignKey(Room)
     time = models.ForeignKey(TimeSlot)
 
