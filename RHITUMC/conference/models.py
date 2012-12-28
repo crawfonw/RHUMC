@@ -2,10 +2,15 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
+import datetime
+
 class Conference(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     start_date = models.DateField(help_text='yyyy-mm-dd')
     end_date = models.DateField(help_text='yyyy-mm-dd')
+    
+    class Meta:
+        ordering = ('start_date', 'end_date',)
     
     def __unicode__(self):
         return self.name
@@ -19,9 +24,6 @@ class Conference(models.Model):
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError(u'The end date may not be before the start date.')
-    
-    class Meta:
-        ordering = ['start_date', 'end_date']
 
 class Attendee(models.Model):
     ETHNICITY = (('American Indian or Alaska Native', 'American Indian or Alaska Native'),
@@ -75,6 +77,9 @@ class Attendee(models.Model):
     requires_housing = models.BooleanField()
     comments = models.TextField(blank=True)
     
+    class Meta:
+        ordering = ('last_name', 'first_name',)
+    
     def __unicode__(self):
         return '%s, %s' % (self.last_name, self.first_name) 
     
@@ -84,13 +89,52 @@ class Attendee(models.Model):
                 raise ValidationError(u'Paper Title is required if attendee is submitting a talk!')
             if self.paper_abstract == '':
                 raise ValidationError(u'Paper Abstract is required if attendee is submitting a talk!')
-            
+
+class Room(models.Model):
+    building = models.CharField(max_length=100)
+    room_number = models.CharField(max_length=100)
+
     class Meta:
-        ordering = ['last_name', 'first_name']
+        ordering = ('building', 'room_number',)
+        unique_together = (('building', 'room_number',),)
+
+    def __unicode__(self):
+        return '%s %s' % (self.building, self.name)
+
+class Schedule(models.Model):
+    conference = models.ForeignKey(Conference)
+
+class Day(models.Model):
+    schedule = models.ForeignKey(Schedule)
+    date = models.DateField(help_text='yyyy-mm-dd')
     
+    class Meta:
+        ordering = ('schedule', 'date',)
+        unique_together = (('schedule', 'date',),)
+
+    def __unicode__(self):
+        return '%s on %s' % (self.schedule, self.date)
+    
+    def clean(self):
+        pass
+
+class TimeSlot(models.Model):
+    day = models.ForeignKey(Day)
+    start_time = models.TimeField(help_text='hh:mm')
+    end_time = models.TimeField(help_text='hh:mm')
+    
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError(u'The end date may not be before the start date.')
+        
+class Session(models.Model):
+    speaker = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__start_date__gte=datetime.date.today)) #is it always one person? filter attendees to just the certain conference
+    room = models.ForeignKey(Room)
+    time = models.ForeignKey(TimeSlot)
+
 class Page(models.Model):
     title = models.CharField(max_length=100)
-    is_link = models.BooleanField()
+    is_link = models.BooleanField(help_text='Is this an external URL?')
     link = models.URLField(blank=True, help_text='Only for external URLs.')
     on_sidebar = models.BooleanField(help_text='Should this page show up on the main sidebar?')
     page_text = models.TextField(blank=True, help_text='For internal pages.')
@@ -99,7 +143,7 @@ class Page(models.Model):
         return self.title
     
     def clean(self):
-        if self.is_link == True and self.link == None:
+        if self.is_link and self.link == None:
             raise ValidationError(u'You must specify a URL for the indicated link.')
         
         

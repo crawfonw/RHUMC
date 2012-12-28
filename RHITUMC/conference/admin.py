@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Attendee, Conference, Page
+from models import Attendee, Conference, Page, Room, Schedule, Day, TimeSlot, Session
 
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
@@ -30,15 +30,13 @@ class AttendeeAdmin(FengShuiAdmin):
 
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
-                  (None, {
+                  ('General Settings', {
                           'fields': ('title',),
                           }),
                   ('Link Settings', {
-                                          'classes': ('collapse',),
                                           'fields': ('is_link', 'link',),
                                           }),
                   ('Page Settings', {
-                                        'classes': ('collapse',),
                                         'fields': ('on_sidebar', 'page_text',),
                                         }),
                   )
@@ -50,3 +48,9 @@ class ConferenceAdmin(FengShuiAdmin):
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(Page, PageAdmin)
+
+admin.site.register(Room)
+admin.site.register(Day)
+admin.site.register(Schedule)
+admin.site.register(TimeSlot)
+admin.site.register(Session)
