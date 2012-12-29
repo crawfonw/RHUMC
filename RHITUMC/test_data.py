@@ -43,6 +43,8 @@ def run(purge):
     
     create_conferences_schedules_and_timeslots()
     create_attendees()
+    create_rooms()
+    create_sessions()
 
 def create_conferences_schedules_and_timeslots():
     from conference.models import Conference, Day, Schedule, TimeSlot
@@ -79,14 +81,14 @@ def create_attendees(n=30):
     from conference.models import Attendee, Conference
     
     n_owner = User.objects.get(username='nick')
-    conferences = Conference.objects.all()
+    conf = Conference.objects.get(name='Current Conference') 
     schools = ['Carnegie Mellon University', 'Davidson College', 'Indiana University', 'Kenyon College', 'Michigan State University', 'Purdue University', 'Rose-Hulman Institute of Technology', 'Stanford', 'University of Louisville']
     first_names = ['Alan', 'Alexa', 'Alexandra', 'Alfonso', 'Alice', 'Alvin', 'Amaya', 'Amber', 'Amy', 'Avram', 'Barclay', 'Boris', 'Brian', 'Brock', 'Cailin', 'Cameran', 'Cameron', 'Carl', 'Chanda', 'Channing', 'Chester', 'Claire', 'Clementine', 'Dai', 'Davis', 'Davis', 'Demetrius', 'Driscoll', 'Dustin', 'Erica', 'Faith', 'Fiona', 'Frances', 'Gary', 'Gary', 'Genevieve', 'George', 'Hadassah', 'Hadassah', 'Hayden', 'Idola', 'Idona', 'Illana', 'Ivy', 'Jackson', 'Jacob', 'Joelle', 'Jolie', 'Kaye', 'Kelsie', 'Lance', 'Lareina', 'Lawrence', 'Lesley', 'Levi', 'Lewis', 'Lyle', 'Madaline', 'Mallory', 'Mannix', 'Mara', 'Marsden', 'Matthew', 'Maxine', 'Meredith', 'Michelle', 'Naomi', 'Nina', 'Nomlanga', 'Norman', 'Pamela', 'Piper', 'Quin', 'Quinn', 'Quyn', 'Rachel', 'Rashad', 'Rebekah', 'Reece', 'Regina', 'Rhea', 'Robert', 'Rose', 'Russell', 'Sacha', 'Sage', 'Shannon', 'Shea', 'Shelby', 'Simon', 'Sylvia', 'Tatum', 'Ulla', 'Vance', 'Willa', 'Winter', 'Xerxes', 'Yael', 'Yuli', 'Zorita']
     last_names = ['Adkins', 'Arnold', 'Ashley', 'Ballard', 'Barry', 'Berger', 'Blackburn', 'Blackwell', 'Blake', 'Bridges', 'Burch', 'Burgess', 'Cameron', 'Cardenas', 'Carrillo', 'Cash', 'Castaneda', 'Christian', 'Cleveland', 'Copeland', 'Cotton', 'Crawford', 'Cunningham', 'Curry', 'Dale', 'Dalton', 'Davidson', 'Dillard', 'Evans', 'Figueroa', 'Fleming', 'Flores', 'Foley', 'Freeman', 'Galloway', 'Gibbs', 'Gilbert', 'Gonzales', 'Gray', 'Hansen', 'Harding', 'Higgins', 'Hobbs', 'Hodges', 'Hunter', 'Irwin', 'Joyce', 'Kent', 'Kramer', 'Lancaster', 'Lang', 'Lindsey', 'Little', 'Lynch', 'Marks', 'Marsh', 'Mathis', 'Maynard', 'Mccall', 'Mcclure', 'Merrill', 'Merritt', 'Middleton', 'Miles', 'Mitchell', 'Morrison', 'Nieves', 'Obrien', 'Petersen', 'Pittman', 'Powell', 'Pugh', 'Ramos', 'Richmond', 'Rivas', 'Rodriquez', 'Rosario', 'Salinas', 'Sampson', 'Sandoval', 'Scott', 'Shields', 'Spears', 'Stark', 'Terrell', 'Townsend', 'Tran', 'Tucker', 'Valenzuela', 'Vargas', 'Wade', 'Walker', 'Walton', 'Warren', 'Wells', 'Whitney', 'Wolf', 'Wong', 'Wright', 'Yang']
     for i in range(n):
         f = choice(first_names)
         l = choice(last_names)
-        a = Attendee.objects.create(owner=n_owner, conference=conferences[i % len(conferences)], email='%s@%s.com' % (f, l), \
+        a = Attendee.objects.create(owner=n_owner, conference=conf, email='%s@%s.com' % (f, l), \
                                     first_name = f, last_name=l, school=choice(schools), attendee_type=choice(['Student', 'Faculty']))
         if randint(0,n/10) == 0:
             a.is_submitting_talk = True
@@ -97,7 +99,16 @@ def create_attendees(n=30):
         if randint(0,2) == 0:
             a.requires_housing = True
         a.save()
+
+def create_rooms(n=5):
+    from conference.models import Room
     
+    for i in range(n):
+        Room.objects.create(building='Crapo', room_number='G2%s' % (20 + i))
+
+def create_sessions():
+    pass
+
 if __name__ == '__main__':
     import argparse, os
     parser = argparse.ArgumentParser()

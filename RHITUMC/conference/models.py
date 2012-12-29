@@ -134,7 +134,7 @@ class TimeSlot(models.Model):
     end_time = models.TimeField(help_text='hh:mm')
     
     def __unicode__(self):
-        return self.name
+        return '%s (%s to %s)' % (self.name, self.start_time, self.end_time)
     
     def clean(self):
         if self.end_time < self.start_time:
@@ -147,6 +147,9 @@ class Session(models.Model):
                                                                     & models.Q(is_submitting_talk=True))) #is it always one person? filter attendees to just the certain conference
     room = models.ForeignKey(Room)
     time = models.ForeignKey(TimeSlot)
+    
+    def __unicode__(self):
+        return '%s in %s' % (self.speaker, self.time)
 
 class Page(models.Model):
     title = models.CharField(max_length=100)
