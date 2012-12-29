@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Attendee, Conference, Page, Room, Schedule, Day, TimeSlot, Session
+from models import Attendee, Conference, Contactee, Page, Room, Schedule, Day, TimeSlot, Session
 
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
@@ -8,7 +8,7 @@ class FengShuiAdmin(admin.ModelAdmin):
     
 class AttendeeAdmin(FengShuiAdmin):
     fieldsets = (
-                  (None, {
+                  ('General Information', {
                           'fields': ('owner', 'conference', 'first_name', 'last_name', 'email', 'sex',),
                           }),
                   ('School Information', {
@@ -31,26 +31,30 @@ class AttendeeAdmin(FengShuiAdmin):
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
                   ('General Settings', {
-                          'fields': ('title',),
-                          }),
-                  ('Link Settings', {
-                                          'fields': ('is_link', 'link',),
-                                          }),
-                  ('Page Settings', {
-                                        'fields': ('on_sidebar', 'page_text',),
+                                        'fields': ('title',),
                                         }),
+                  ('Link Settings', {
+                                     'fields': ('is_link', 'link',),
+                                    }),
+                  ('Page Settings', {
+                                    'fields': ('on_sidebar', 'page_text',),
+                                    }),
                   )
 
 class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date', 'past_conference',)
     search_fields = ('name',)
 
+class TimeSlotAdmin(FengShuiAdmin):
+    filter_horizontal = ('day',)
+    list_display = ('name', 'start_time', 'end_time',)
+
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
-admin.site.register(Page, PageAdmin)
-
-admin.site.register(Room)
+admin.site.register(Contactee)
 admin.site.register(Day)
+admin.site.register(Page, PageAdmin)
+admin.site.register(Room)
 admin.site.register(Schedule)
-admin.site.register(TimeSlot)
 admin.site.register(Session)
+admin.site.register(TimeSlot, TimeSlotAdmin)

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.localflavor.us.models import PhoneNumberField 
 
 import datetime
 
@@ -112,7 +113,7 @@ class Schedule(models.Model):
         return '%s schedule' % self.conference
 
 class Day(models.Model):
-    schedule = models.ForeignKey(Schedule)
+    schedule = models.ForeignKey(Schedule, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     date = models.DateField(help_text='yyyy-mm-dd')
     
     class Meta:
@@ -128,16 +129,22 @@ class Day(models.Model):
 
 class TimeSlot(models.Model):
     name = models.CharField(max_length=100)
-    day = models.ForeignKey(Day)
+    day = models.ManyToManyField(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
     start_time = models.TimeField(help_text='hh:mm')
     end_time = models.TimeField(help_text='hh:mm')
     
+    def __unicode__(self):
+        return self.name
+    
     def clean(self):
         if self.end_time < self.start_time:
-            raise ValidationError(u'The end date may not be before the start date.')
+            raise ValidationError(u'The end time may not be before the start time.')
+        if self.start_time == self.end_time:
+            raise ValidationError(u'The start and end times may not be the same.')
         
 class Session(models.Model):
-    speaker = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today)) #is it always one person? filter attendees to just the certain conference
+    speaker = models.ForeignKey(Attendee, limit_choices_to=(models.Q(conference__end_date__gte=datetime.date.today) \
+                                                                    & models.Q(is_submitting_talk=True))) #is it always one person? filter attendees to just the certain conference
     room = models.ForeignKey(Room)
     time = models.ForeignKey(TimeSlot)
 
@@ -155,5 +162,15 @@ class Page(models.Model):
         if self.is_link and self.link == None:
             raise ValidationError(u'You must specify a URL for the indicated link.')
         
+class Contactee(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(unique=True)
+    phone = PhoneNumberField()
+    active_contact = models.BooleanField()
+    
+    class Meta:
+        ordering = ('name',)
         
+    def __unicode__(self):
+        return self.name
         
