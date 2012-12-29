@@ -102,11 +102,10 @@ def program(request):
                 if session.day == day and session.time not in d[1]:
                     d[1].append(session.time)
             days_and_timeslots.append(d)
+        
         return render_to_response('conference/program.html',
                                   {'page_title': 'Program',
                                    'sessions': sessions,
-                                   'time_slots': time_slots,
-                                   'days': days,
                                    'days_and_timeslots': days_and_timeslots,
                                    },
                                    RequestContext(request))
