@@ -107,7 +107,7 @@ class Room(models.Model):
         return '%s %s' % (self.building, self.room_number)
 
 class Schedule(models.Model):
-    conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
+    conference = models.OneToOneField(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
     
     def __unicode__(self):
         return '%s schedule' % self.conference

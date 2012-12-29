@@ -19,7 +19,7 @@ from django.db.models import Q
 from datetime import datetime
 
 from forms import AttendeeForm
-from models import Attendee, Conference, Day, Session, Schedule, TimeSlot
+from models import Attendee, Conference, Day, Page, Session, Schedule, TimeSlot
 
 def generic_page(request, page_title, text):
     return render_to_response('conference/generic-text.html',
@@ -77,7 +77,11 @@ def register_attendee(request):
                                'form': form,
                                },
                                RequestContext(request))
-    
+
+def page(request, page_id):
+    p = get_object_or_404(Page, pk=page_id)
+    return generic_page(request, p.title, p.page_text)
+
 def program(request):
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() > 0:
@@ -86,7 +90,8 @@ def program(request):
         c = None
     
     if c is not None:
-        current_schedule = Schedule.objects.get(conference=c)
+        current_schedule = Schedule.objects.filter(conference=c)
+        print current_schedule
         days = Day.objects.filter(schedule=current_schedule)
         time_slots = TimeSlot.objects.filter(schedule=current_schedule)
         sessions = Session.objects.filter(day__in=days, time__in=time_slots)

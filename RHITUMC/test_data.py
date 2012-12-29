@@ -34,9 +34,10 @@ def run(purge):
         print 'Resetting site and auth data'
         purge_and_create_site_and_auth()
     
-    from conference.models import Conference, Page, Room, TimeSlot
+    from conference.models import Conference, Contactee, Page, Room, TimeSlot
     
     Conference.objects.all().delete()
+    Contactee.objects.all().delete()
     Page.objects.all().delete()
     Room.objects.all().delete()
     TimeSlot.objects.all().delete()
@@ -45,6 +46,8 @@ def run(purge):
     create_attendees()
     create_rooms()
     create_sessions()
+    create_pages()
+    create_contacts()
 
 def create_conferences_schedules_and_timeslots():
     from conference.models import Conference, Day, Schedule, TimeSlot
@@ -67,6 +70,22 @@ def create_conferences_schedules_and_timeslots():
     TimeSlot.objects.create(name='First Time Slot', schedule=s, start_time=time(hour=12), end_time=time(hour=13))
     TimeSlot.objects.create(name='Second Time Slot', schedule=s, start_time=time(hour=13, minute=30), end_time=time(hour=14, minute=30))
     TimeSlot.objects.create(name='Third Time Slot', schedule=s, start_time=time(hour=10), end_time=time(hour=12))
+    
+def create_pages():
+    from conference.models import Page
+    
+    Page.objects.create(title='Call For Papers', on_sidebar=True, page_text='The Rose-Hulman conference has from its inception been focused on undergraduates presenting their mathematical findings.  Topics across the mathematical landscape are encouraged and supported, and we aim to provide a pleasant atmosphere in which students can initiate their foray into mathematical presentation.  All talks except for the plenaries are presented by undergraduates, for undergraduates, and to undergraduates. Each session is chaired by an undergraduate. <ul> <li> Each talk receives 15 minutes and is part of a session of  \tthree talks. </li> <li> Talks can be submitted to the <i>Best Talk of 2013</i> competition. </li> <li> Talks are given in parallel sessions throughout the conference.</li> </ul>All speakers must register for the conference to give a talk, and talks are submitted on the <a href="register.shtml">registration page</a>. Speakers  may want to see some <u><a href="speakerGuidelines.shtml">guidelines</a></u>.')
+    Page.objects.create(title='Accomodations', on_sidebar=True, page_text='The conference hotel is the <u><a href="http://www.qualityinn.com/hotel-terre_haute-indiana-IN352">Quality Inn of Terre Haute</a></u>. Our goal is to pay for accomodations for registered undergraduate participants (non-Rose students) on the evening of Friday, 4/19/2013. We currently have 20 rooms reserved to house the first 40 registered particpants.  These rooms are offered on a <i>first come </i> basis, and registering early is the best way to ensure that we will cover housing costs. <p> To Make Reservations: </p><ul> <li> Register for the conference on our <u><a href="register.shtml">registration page</a></u>. </li><li> Make sure to note during the registration that you are requesting housing  \t(this is the default). </li> <li> If you have a preference of a roomate, please include this information as you register. </li> <li> We will make reservations for you, so all you have to do is arrive, check-in, \tand enjoy. </li> </ul> If you wish to stay nights other than 4/19/2013, then the conference is not responsible for these costs and you will have to pay for the additional nights. <p> Visiting faculty have been extended a rate of $52.50 per night.  These arrangements need to be made with the hotel directly.  Simply alert the staff that your stay is part of the Rose-Hulman conference. </p><p> The conference will provide buss service to and from the conference.  The undergraduate party will be held at the Quality Inn the evening of 4/19/2013.  Breakfast is included with your stay.       </p>')
+    Page.objects.create(title='Directions', on_sidebar=True, page_text='Directions will be posted soon.')
+    Page.objects.create(title='Maps', on_sidebar=True, page_text='Maps will be posted soon.')
+    Page.objects.create(title='Archives', is_link=True, link='http://www.rose-hulman.edu/class/ma/web/mathconf/history.php')
+    Page.objects.create(title='RHIT Math', is_link=True, link='http://www.rose-hulman.edu/math.aspx')
+    
+def create_contacts():
+    from conference.models import Contactee
+    
+    Contactee.objects.create(name='Allen Holder', email='holder@rose-hulman.edu', phone='812-877-8682', active_contact=True)
+    Contactee.objects.create(name='Vin Isaia', email='isaia@rose-hulman.edu', phone='812-877-8543', active_contact=True)
 
 def create_attendees(n=30):
     from django.contrib.auth.models import User

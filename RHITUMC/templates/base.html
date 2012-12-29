@@ -42,16 +42,12 @@
       <table>
          <tr> <td> <a href="{% url conference-index %}"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
          <tr> <td> <a href="{% url conference-registration %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
-         <tr> <td> <a href="cfp.shtml"> <font color="#800000" size="+1"><b>Call&nbspFor&nbspPapers</b></font></a> </td> </tr>
          <tr> <td> <a href="{% url conference-program %}"><font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
-         <tr> <td> <a href="hotel.shtml"><font color="#800000" size="+1"><b>Accomodations</b></font></a> </td> </tr>
-         <tr> <td> <a href="directions.shtml"><font color="#800000" size="+1"><b>Directions</b></font></a> </td> </tr>
-         <tr> <td> <a href="map.shtml"><font color="#800000" size="+1"><b>Maps</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/history.php"><font color="#800000" size="+1"><b>Archives</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/math.aspx"><font color="#800000" size="+1"><b>RHIT Math</b></font></a> </td> </tr>
          {% for page in PAGES %}
          {% if page.is_link %}
          <tr> <td> <a href="{{ page.link }}"><font color="#800000" size="+1"><b>{{ page.title }}</b></font></a> </td> </tr>
+         {% elif page.on_sidebar %}
+         <tr> <td> <a href="{% url conference-page page.pk %}"><font color="#800000" size="+1"><b>{{ page.title }}</b></font></a> </td> </tr>
          {% endif %}
          {% endfor %}
       </table>
@@ -76,17 +72,18 @@
 
       <td width="30%">
       <!-- Right Side Contact -->
+      {% if CONTACTS|length > 0 %}
       <table>
       <tr> <td> <font size="+1"> Contact </font> </td> </tr>
       <tr> <td> <hr> </td> </tr>
-      <tr> <td> Allen Holder </td> </tr>
-      <tr> <td> <a href="mailto:holder@rose-hulman.edu">holder@rose-hulman.edu</a></td> </tr>
-      <tr> <td> 812-877-8682 </td> </tr>
+      {% for contact in CONTACTS %}
+      <tr> <td> {{ contact.name }} </td> </tr>
+      <tr> <td> <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></td> </tr>
+      <tr> <td> {{ contact.phone }} </td> </tr>
       <tr> <td> &nbsp </td> </tr>
-      <tr> <td> Vin Isaia </td> </tr>
-      <tr> <td> <a href="mailto:isaia@rose-hulman.edu">isaia@rose-hulman.edu</a></td> </tr>
-      <tr> <td> 812-877-8543 </td> </tr>
+      {% endfor %}
       </table>
+      {% endif %}
       </td>
 </tr>
 </table>
