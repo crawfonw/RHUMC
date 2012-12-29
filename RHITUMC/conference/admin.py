@@ -27,6 +27,7 @@ class AttendeeAdmin(FengShuiAdmin):
                   )
     list_display = ('__unicode__', 'owner', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
     list_filter = ('owner', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'conference',)
+    search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
 
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
