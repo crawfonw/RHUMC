@@ -22,7 +22,7 @@
                  <td> <table border="0" cellspacing="0" cellpadding="0">
                     <tr> <td> <font color="#800000" size="+2"> Rose-Hulman Institute of Technology </font> </td> </tr>
                     <tr> <td> <font color="#800000" size="+2"> Undergraduate Mathematics Conference </font> </td> </tr>
-                    {% if CONF %}<tr> <td> <font color="#800000" size="+2"> {{ CONF.start_date|date:"N d" }} - {{ CONF.end_date|date:"d, Y" }}</font> </td> </tr>{% endif %}
+                    {% if CONF %}<tr> <td> <font color="#800000" size="+2"> {% if CONF.start_date.month == CONF.end_date.month %}{{ CONF.start_date|date:"N d" }} - {{ CONF.end_date|date:"d, Y" }}{% else %}{{ CONF.start_date|date:"N d" }} - {{ CONF.end_date|date:"N d, Y" }}{% endif %}</font> </td> </tr>{% endif %}
                     </table> </td> 
               </tr>
       </table> </td>
@@ -41,7 +41,7 @@
          <tr> <td> <a href="{% url conference-index %}"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
          <tr> <td> <a href="{% url conference-registration %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
          <tr> <td> <a href="cfp.shtml"> <font color="#800000" size="+1"><b>Call&nbspFor&nbspPapers</b></font></a> </td> </tr>
-         <tr> <td> <a href="program.shtml"><font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
+         <tr> <td> <a href="{% url conference-program %}"><font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
          <tr> <td> <a href="hotel.shtml"><font color="#800000" size="+1"><b>Accomodations</b></font></a> </td> </tr>
          <tr> <td> <a href="directions.shtml"><font color="#800000" size="+1"><b>Directions</b></font></a> </td> </tr>
          <tr> <td> <a href="map.shtml"><font color="#800000" size="+1"><b>Maps</b></font></a> </td> </tr>

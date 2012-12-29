@@ -64,17 +64,9 @@ def create_conferences_schedules_and_timeslots():
     d4 = Day.objects.create(schedule=s, date=now+timedelta(days=3))
     d5 = Day.objects.create(schedule=s, date=now+timedelta(days=4))
     
-    t1 = TimeSlot.objects.create(name='First Time Slot', start_time=time(hour=12), end_time=time(hour=13))
-    t1.day.add(d1,d2,d3,d4,d5)
-    t1.save()
-    
-    t2 = TimeSlot.objects.create(name='Second Time Slot', start_time=time(hour=13, minute=30), end_time=time(hour=14, minute=30))
-    t2.day.add(d1,d2,d3,d4,d5)
-    t2.save()
-    
-    t3 = TimeSlot.objects.create(name='Third Time Slot', start_time=time(hour=10), end_time=time(hour=12))
-    t3.day.add(d5)
-    t3.save()
+    TimeSlot.objects.create(name='First Time Slot', schedule=s, start_time=time(hour=12), end_time=time(hour=13))
+    TimeSlot.objects.create(name='Second Time Slot', schedule=s, start_time=time(hour=13, minute=30), end_time=time(hour=14, minute=30))
+    TimeSlot.objects.create(name='Third Time Slot', schedule=s, start_time=time(hour=10), end_time=time(hour=12))
 
 def create_attendees(n=30):
     from django.contrib.auth.models import User

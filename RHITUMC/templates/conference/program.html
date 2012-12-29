@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ days }}<br/><br/>
+{{ time_slots }}<br/><br/>
+
+{{ sessions }}<br/>
+
+<ul>
+	{% for day in days %}
+	<ul>
+		<li>{{ day }}</li>
+			<ul>
+			{% for session in sessions %}
+			{% if day == session.day  %}
+			<li>{{ session.speaker }} in {{ session.room }}</li>
+			{% endif %}
+			{% endfor %}
+			</ul>
+	</ul>
+{% endfor %}
+</ul>
+
+{% endblock %}

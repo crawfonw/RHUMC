@@ -129,9 +129,13 @@ class Day(models.Model):
 
 class TimeSlot(models.Model):
     name = models.CharField(max_length=100)
-    day = models.ManyToManyField(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
+    schedule = models.ForeignKey(Schedule, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     start_time = models.TimeField(help_text='hh:mm')
     end_time = models.TimeField(help_text='hh:mm')
+    
+    class Meta:
+        ordering = ('schedule', 'start_time', 'end_time',)
+        unique_together = (('schedule', 'start_time', 'end_time',),)
     
     def __unicode__(self):
         return '%s (%s to %s)' % (self.name, self.start_time, self.end_time)
@@ -147,9 +151,10 @@ class Session(models.Model):
                                                                     & models.Q(is_submitting_talk=True))) #is it always one person? filter attendees to just the certain conference
     room = models.ForeignKey(Room)
     time = models.ForeignKey(TimeSlot)
+    day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
     
     def __unicode__(self):
-        return '%s in %s' % (self.speaker, self.time)
+        return '%s in %s at %s on %s' % (self.speaker, self.room, self.time, self.day)
 
 class Page(models.Model):
     title = models.CharField(max_length=100)

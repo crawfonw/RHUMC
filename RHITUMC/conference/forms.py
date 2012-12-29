@@ -11,10 +11,6 @@ class EmptyChoiceField(forms.ChoiceField):
         super(EmptyChoiceField, self).__init__(choices=choices, required=required, widget=widget, label=label,
                                         initial=initial, help_text=help_text, *args, **kwargs)
 
-class AttendeeForm2(ModelForm):
-    class Meta:
-        model = Attendee
-
 class AttendeeForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'

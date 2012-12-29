@@ -46,7 +46,6 @@ class ConferenceAdmin(FengShuiAdmin):
     search_fields = ('name',)
 
 class TimeSlotAdmin(FengShuiAdmin):
-    filter_horizontal = ('day',)
     list_display = ('name', 'start_time', 'end_time',)
 
 admin.site.register(Attendee, AttendeeAdmin)

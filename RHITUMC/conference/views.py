@@ -19,7 +19,14 @@ from django.db.models import Q
 from datetime import datetime
 
 from forms import AttendeeForm
-from models import Attendee, Conference
+from models import Attendee, Conference, Day, Session, Schedule, TimeSlot
+
+def generic_page(request, page_title, text):
+    return render_to_response('conference/generic-text.html',
+                              {'page_title': page_title,
+                               'text': text,
+                               },
+                               RequestContext(request))
 
 def index(request):
     return render_to_response('conference/index.html',
@@ -32,11 +39,7 @@ def register_attendee(request):
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
         text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
-        return render_to_response('conference/generic-text.html',
-                              {'page_title': 'Registration',
-                               'text': text,
-                               },
-                               RequestContext(request))
+        return generic_page(request, 'Registration', text)
     if request.method == 'POST':
         form = AttendeeForm(request.POST)
         if form.is_valid():
@@ -74,3 +77,30 @@ def register_attendee(request):
                                'form': form,
                                },
                                RequestContext(request))
+    
+def program(request):
+    c = Conference.objects.filter(end_date__gte=datetime.now())
+    if c.count() > 0:
+        c = c[0]
+    else:
+        c = None
+    if c is not None:
+        current_schedule = Schedule.objects.get(conference=c)
+        days = Day.objects.filter(schedule=current_schedule)
+        time_slots = TimeSlot.objects.filter(schedule=current_schedule)
+        sessions = Session.objects.filter(day__in=days, time__in=time_slots)
+        print days
+        print time_slots
+        if days.count() == 0  or time_slots.count() == 0:
+            text = 'The schedule of times have not been set for this conference yet. Please check back later.'
+            return generic_page(request, 'Program', text)
+        return render_to_response('conference/program.html',
+                                  {'page_title': 'Program',
+                                   'sessions': sessions,
+                                   'time_slots': time_slots,
+                                   'days': days,
+                                   },
+                                   RequestContext(request))
+    else:
+        text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
+        return generic_page(request, 'Program', text)
