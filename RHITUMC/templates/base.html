@@ -59,7 +59,7 @@
       <tr> <td>
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div>{{ message|safe }}</div>
 	{% endfor %}
 {% endif %}
 {% block content %}

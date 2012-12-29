@@ -70,7 +70,7 @@ def register_attendee(request):
                                     is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
                                     )
-            messages.add_message(request, messages.SUCCESS, 'Thanks, you are now registered for the %s conference!' % c[0].format_date())
+            messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c[0].format_date())
             return HttpResponseRedirect(reverse('conference-index'))
             
     else:
