@@ -34,8 +34,11 @@ def index(request):
                                },
                                RequestContext(request))
 
-@login_required
 def register_attendee(request):
+    #temp
+    from django.contrib.auth.models import User
+    user = User.objects.get(username='nick')
+    
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
         text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
@@ -59,7 +62,7 @@ def register_attendee(request):
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
             
-            Attendee.objects.create(owner=request.user, conference=c[0], \
+            Attendee.objects.create(owner=user, conference=c[0], \
                                     email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
                                     attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
