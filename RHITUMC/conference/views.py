@@ -84,21 +84,30 @@ def program(request):
         c = c[0]
     else:
         c = None
+    
     if c is not None:
         current_schedule = Schedule.objects.get(conference=c)
         days = Day.objects.filter(schedule=current_schedule)
         time_slots = TimeSlot.objects.filter(schedule=current_schedule)
         sessions = Session.objects.filter(day__in=days, time__in=time_slots)
-        print days
-        print time_slots
+        
         if days.count() == 0  or time_slots.count() == 0:
             text = 'The schedule of times have not been set for this conference yet. Please check back later.'
             return generic_page(request, 'Program', text)
+        
+        days_and_timeslots = []
+        for day in days:
+            d = [day, []]
+            for session in sessions:
+                if session.day == day and session.time not in d[1]:
+                    d[1].append(session.time)
+            days_and_timeslots.append(d)
         return render_to_response('conference/program.html',
                                   {'page_title': 'Program',
                                    'sessions': sessions,
                                    'time_slots': time_slots,
                                    'days': days,
+                                   'days_and_timeslots': days_and_timeslots,
                                    },
                                    RequestContext(request))
     else:

@@ -1,24 +1,70 @@
 {% extends "base.html" %}
+{% block extra_headers %}
+<!-- Row Highlight Javascript -->
+<script type="text/javascript">
+	window.onload=function(){
+	var tfrow = document.getElementById('tfhover').rows.length;
+	var tbRow=[];
+	for (var i=1;i<tfrow;i++) {
+		tbRow[i]=document.getElementById('tfhover').rows[i];
+		tbRow[i].onmouseover = function(){
+		  this.style.backgroundColor = '#ffffff';
+		};
+		tbRow[i].onmouseout = function() {
+		  this.style.backgroundColor = '#cdcdcd';
+		};
+	}
+};
+</script>
+
+<style type="text/css">
+table.tftable {font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #a9a9a9;border-collapse: collapse;}
+table.tftable th {font-size:12px;background-color:#b8b8b8;border-width: 1px;padding: 8px;border-style: solid;border-color: #a9a9a9;text-align:left;}
+table.tftable tr {background-color:#cdcdcd;}
+table.tftable td {font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #a9a9a9;}
+</style>
+{% endblock %}
 
 {% block content %}
-{{ days }}<br/><br/>
-{{ time_slots }}<br/><br/>
-
-{{ sessions }}<br/>
-
-<ul>
-	{% for day in days %}
-	<ul>
-		<li>{{ day }}</li>
-			<ul>
-			{% for session in sessions %}
-			{% if day == session.day  %}
-			<li>{{ session.speaker }} in {{ session.room }}</li>
-			{% endif %}
-			{% endfor %}
-			</ul>
-	</ul>
+{% comment %}
+{% for day, timeslots in days_and_timeslots %}
+<table id="tfhover" class="tftable" border="1">
+<tr><th>{{ day.date|date:"N d, Y" }}</th></tr>
+{% if timeslots|length > 0 %}
+<tr>{% for timeslot in timeslots %}<th>{{ timeslot }}</th>{% endfor %}</tr>
+<tr><td>Presentation 1.1</td><td>Presentation 2.1</td><td>Presentation 3.1</td></tr>
+<tr><td>Presentation 1.2</td><td>Presentation 2.2</td></tr>
+<tr><td>Presentation 1.3</td></tr>
+{% else %}
+<tr><td><em>No talks scheduled</em></td></tr>
+{% endif %}
+</table>
+<br/>
 {% endfor %}
-</ul>
+<br/>
+{% endcomment %}
 
+{% for day, timeslots in days_and_timeslots %}
+<table id="tfhover" class="tftable" border="1">
+<tr><th>{{ day.date|date:"N d, Y" }}</th></tr>
+{% if timeslots|length > 0 %}
+<tr>{% for timeslot in timeslots %}<th>{{ timeslot }}</th>{% endfor %}</tr>
+<tr><td>Presentation 1.1</td><td>Presentation 2.1</td><td>Presentation 3.1</td></tr>
+<tr><td>Presentation 1.2</td><td>Presentation 2.2</td></tr>
+<tr><td>Presentation 1.3</td></tr>
+{% else %}
+<tr><td><em>No talks scheduled</em></td></tr>
+{% endif %}
+</table>
+<br/>
+{% endfor %}
+<br/>
+<br/>
+
+
+<br/><b>DEBUG:</b><br/><br/>
+<b>Days:</b> {{ days }}<br/><br/>
+<b>Time Slots:</b> {{ time_slots }}<br/><br/>
+<b>Sessions:</b> {{ sessions }}<br/><br/>
+<b>Days with Slots:</b> {{ days_and_timeslots }}<br/><br/>
 {% endblock %}
