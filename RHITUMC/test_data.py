@@ -53,9 +53,9 @@ def create_conferences_schedules_and_timeslots():
     from conference.models import Conference, Day, Schedule, TimeSlot
     
     now = datetime.now()
-    past_conf = Conference.objects.create(name='Past Conference', start_date=now-timedelta(days=35), end_date=now-timedelta(days=30))
-    curr_conf = Conference.objects.create(name='Current Conference', start_date=now, end_date=now+timedelta(days=4))
-    future_conf = Conference.objects.create(name='Future Conference', start_date=now+timedelta(days=30), end_date=now+timedelta(days=35))
+    past_conf = Conference.objects.create(name='Past Conference', start_date=now-timedelta(days=35), end_date=now-timedelta(days=30), registration_open=False)
+    curr_conf = Conference.objects.create(name='Current Conference', start_date=now, end_date=now+timedelta(days=4), registration_open=True)
+    future_conf = Conference.objects.create(name='Future Conference', start_date=now+timedelta(days=30), end_date=now+timedelta(days=35), registration_open=False)
     
     Schedule.objects.create(conference=past_conf)
     Schedule.objects.create(conference=future_conf)

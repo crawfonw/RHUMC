@@ -9,6 +9,7 @@ class Conference(models.Model):
     name = models.CharField(max_length=100, unique=True)
     start_date = models.DateField(help_text='yyyy-mm-dd')
     end_date = models.DateField(help_text='yyyy-mm-dd')
+    registration_open = models.BooleanField(default=True)
     
     class Meta:
         ordering = ('start_date', 'end_date',)

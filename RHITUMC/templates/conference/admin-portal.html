@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Administrative Portal</h2>
+<br />
+Avaliable Tools:
+<ul>
+<li><a href="{% url admin:index %}">Management System</a></li>
+<li>Attendee Emailer</li>
+<li>Schedule Generator</li>
+</ul>
+{% endblock %}

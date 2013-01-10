@@ -21,6 +21,16 @@ from datetime import datetime
 from forms import AttendeeForm
 from models import Attendee, Conference, Day, Page, Session, Schedule, TimeSlot
 
+@login_required
+def admin_portal(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    return render_to_response('conference/admin-portal.html',
+                              {'page_title': 'Administrative Portal',
+                               },
+                               RequestContext(request)) 
+    
+
 def generic_page(request, page_title, text):
     return render_to_response('conference/generic-text.html',
                               {'page_title': page_title,

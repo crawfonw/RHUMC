@@ -43,7 +43,8 @@ class PageAdmin(FengShuiAdmin):
                   )
 
 class ConferenceAdmin(FengShuiAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'past_conference',)
+    list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference',)
+    list_filter = ('registration_open',)
     search_fields = ('name',)
 
 class TimeSlotAdmin(FengShuiAdmin):
