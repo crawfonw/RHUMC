@@ -81,6 +81,7 @@ class Attendee(models.Model):
     
     dietary_restrictions = models.TextField(blank=True)
     requires_housing = models.BooleanField()
+    has_been_paired_for_housing = models.BooleanField() 
     comments = models.TextField(blank=True)
     
     class Meta:

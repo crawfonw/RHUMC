@@ -1,0 +1,27 @@
+<!-- Virtual Header -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Final //EN">
+
+<html>
+
+<head>
+<!-- <base href="http://www.rose-hulman.edu/~holder/RHIT2013/"> -->
+<title>{{ page_title }}</title>
+<style type="text/css">
+<!-- .links {text-decoration: none; color: #000000} -->
+<!-- A{text-decoration:none; color:#000000} -->
+</style>
+{% block extra_headers %}
+{% endblock %}
+</head>
+
+<body TEXT="#000000" LINK="#800000" VLINK="#800000" ALINK="#800000" bgcolor="#ffffff">
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message|safe }}</div>
+	{% endfor %}
+{% endif %}
+{% block content %}
+{% endblock %}
+</body>
+</html>

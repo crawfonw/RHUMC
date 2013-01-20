@@ -109,6 +109,8 @@ def create_attendees(n=30):
                 a.is_submitted_for_best_of_competition = True
         if randint(0,2) == 0:
             a.requires_housing = True
+            if randint(0,1) == 0:
+                a.has_been_paired_for_housing = True
         a.save()
 
 def create_rooms(n=5):
