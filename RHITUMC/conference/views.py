@@ -28,8 +28,21 @@ def admin_portal(request):
     return render_to_response('conference/admin-portal.html',
                               {'page_title': 'Administrative Portal',
                                },
-                               RequestContext(request)) 
-    
+                               RequestContext(request))
+
+@login_required
+def attendee_emailer(request):
+    if not request.user.is_staff:
+        return index(request)
+    c = Conference.objects.filter(end_date__gte=datetime.now())
+    if c.count() == 0:
+        message. = 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.'
+        return generic_page(request, 'Emailer', text)
+    return generic_page(request, 'DNE', 'Not implemented yet.')
+
+@login_required
+def generate_schedule(request):
+    return generic_page(request, 'DNE', 'Not implemented yet.')
 
 def generic_page(request, page_title, text):
     return render_to_response('conference/generic-text.html',
@@ -104,7 +117,6 @@ def program(request):
     
     if c is not None:
         current_schedule = Schedule.objects.filter(conference=c)
-        print current_schedule
         days = Day.objects.filter(schedule=current_schedule)
         time_slots = TimeSlot.objects.filter(schedule=current_schedule)
         sessions = Session.objects.filter(day__in=days, time__in=time_slots)

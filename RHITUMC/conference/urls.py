@@ -6,5 +6,8 @@ urlpatterns = patterns('conference.views',
     url(r'^register/$', register_attendee, name='conference-registration'),
     url(r'^program/$', program, name='conference-program'),
     url(r'^page/(?P<page_id>[\d]+)/$', page, name='conference-page'),
-    url(r'^portal/$', admin_portal, name='admin-portal')
+    
+    url(r'^portal/$', admin_portal, name='admin-portal'),
+    url(r'^portal/emailer/$', attendee_emailer, name='attendee-emailer'),
+    url(r'^portal/scheduler/$', generate_schedule, name='schedule-generator'),
 )
