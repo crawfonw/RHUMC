@@ -49,6 +49,10 @@ class ConferenceAdmin(FengShuiAdmin):
 
 class TimeSlotAdmin(FengShuiAdmin):
     list_display = ('name', 'start_time', 'end_time',)
+    
+class SessionAdmin(FengShuiAdmin):
+    filter_horizontal = ('speakers',)
+    list_display = ('day', 'time', 'room', 'chair',)
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
@@ -57,5 +61,5 @@ admin.site.register(Day)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Room)
 admin.site.register(Schedule)
-admin.site.register(Session)
+admin.site.register(Session, SessionAdmin)
 admin.site.register(TimeSlot, TimeSlotAdmin)

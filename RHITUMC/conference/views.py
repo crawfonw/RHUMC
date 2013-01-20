@@ -117,6 +117,7 @@ def page(request, page_id):
     return generic_page(request, p.title, p.page_text)
 
 def program(request):
+    #TODO: fix/update this
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() > 0:
         c = c[0]

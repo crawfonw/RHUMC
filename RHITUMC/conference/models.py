@@ -148,14 +148,15 @@ class TimeSlot(models.Model):
             raise ValidationError(u'The start and end times may not be the same.')
         
 class Session(models.Model):
-    speaker = models.ForeignKey(Attendee, limit_choices_to=(models.Q(conference__end_date__gte=datetime.date.today) \
-                                                                    & models.Q(is_submitting_talk=True))) #is it always one person? filter attendees to just the certain conference
+    chair = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today), related_name='chair')
+    speakers = models.ManyToManyField(Attendee, limit_choices_to=(models.Q(conference__end_date__gte=datetime.date.today) \
+                                                                    & models.Q(is_submitting_talk=True)), related_name='speakers') #is it always one person? filter attendees to just the certain conference
     room = models.ForeignKey(Room)
     time = models.ForeignKey(TimeSlot)
     day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
     
     def __unicode__(self):
-        return '%s in %s at %s on %s' % (self.speaker, self.room, self.time, self.day)
+        return 'Session in %s at %s on %s' % (self.room, self.time, self.day)
 
 class Page(models.Model):
     title = models.CharField(max_length=100)
