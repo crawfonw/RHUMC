@@ -61,7 +61,6 @@ class Attendee(models.Model):
             ('Other', 'Other'),
             )
     
-    owner = models.ForeignKey(User) #whomever created this attendee
     conference = models.ForeignKey(Conference)
     
     email = models.EmailField()

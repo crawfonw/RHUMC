@@ -91,7 +91,6 @@ def create_attendees(n=30):
     from django.contrib.auth.models import User
     from conference.models import Attendee, Conference
     
-    n_owner = User.objects.get(username='nick')
     conf = Conference.objects.get(name='Current Conference') 
     schools = ['Carnegie Mellon University', 'Davidson College', 'Indiana University', 'Kenyon College', 'Michigan State University', 'Purdue University', 'Rose-Hulman Institute of Technology', 'Stanford', 'University of Louisville']
     first_names = ['Alan', 'Alexa', 'Alexandra', 'Alfonso', 'Alice', 'Alvin', 'Amaya', 'Amber', 'Amy', 'Avram', 'Barclay', 'Boris', 'Brian', 'Brock', 'Cailin', 'Cameran', 'Cameron', 'Carl', 'Chanda', 'Channing', 'Chester', 'Claire', 'Clementine', 'Dai', 'Davis', 'Davis', 'Demetrius', 'Driscoll', 'Dustin', 'Erica', 'Faith', 'Fiona', 'Frances', 'Gary', 'Gary', 'Genevieve', 'George', 'Hadassah', 'Hadassah', 'Hayden', 'Idola', 'Idona', 'Illana', 'Ivy', 'Jackson', 'Jacob', 'Joelle', 'Jolie', 'Kaye', 'Kelsie', 'Lance', 'Lareina', 'Lawrence', 'Lesley', 'Levi', 'Lewis', 'Lyle', 'Madaline', 'Mallory', 'Mannix', 'Mara', 'Marsden', 'Matthew', 'Maxine', 'Meredith', 'Michelle', 'Naomi', 'Nina', 'Nomlanga', 'Norman', 'Pamela', 'Piper', 'Quin', 'Quinn', 'Quyn', 'Rachel', 'Rashad', 'Rebekah', 'Reece', 'Regina', 'Rhea', 'Robert', 'Rose', 'Russell', 'Sacha', 'Sage', 'Shannon', 'Shea', 'Shelby', 'Simon', 'Sylvia', 'Tatum', 'Ulla', 'Vance', 'Willa', 'Winter', 'Xerxes', 'Yael', 'Yuli', 'Zorita']
@@ -99,7 +98,7 @@ def create_attendees(n=30):
     for i in range(n):
         f = choice(first_names)
         l = choice(last_names)
-        a = Attendee.objects.create(owner=n_owner, conference=conf, email='%s@%s.com' % (f, l), \
+        a = Attendee.objects.create(conference=conf, email='%s@%s.com' % (f, l), \
                                     first_name = f, last_name=l, school=choice(schools), attendee_type=choice(['Student', 'Faculty']))
         if randint(0,n/10) == 0:
             a.is_submitting_talk = True

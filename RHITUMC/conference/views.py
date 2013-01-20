@@ -32,16 +32,17 @@ def admin_portal(request):
 
 @login_required
 def attendee_emailer(request):
-    if not request.user.is_staff:
-        return index(request)
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
-        message. = 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.'
-        return generic_page(request, 'Emailer', text)
+        messages.add_message(request, messages.ERROR, 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.')
     return generic_page(request, 'DNE', 'Not implemented yet.')
 
 @login_required
 def generate_schedule(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
     return generic_page(request, 'DNE', 'Not implemented yet.')
 
 def generic_page(request, page_title, text):
@@ -57,11 +58,7 @@ def index(request):
                                },
                                RequestContext(request))
 
-def register_attendee(request):
-    #temp
-    from django.contrib.auth.models import User
-    user = User.objects.get(username='nick')
-    
+def register_attendee(request):    
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
         text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
@@ -85,7 +82,7 @@ def register_attendee(request):
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
             
-            Attendee.objects.create(owner=user, conference=c[0], \
+            Attendee.objects.create(conference=c[0], \
                                     email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
                                     attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
