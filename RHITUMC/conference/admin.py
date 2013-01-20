@@ -7,6 +7,7 @@ class FengShuiAdmin(admin.ModelAdmin):
     list_per_page = 50
     
 class AttendeeAdmin(FengShuiAdmin):
+    #TODO: add "Toggle Room Paired" action
     fieldsets = (
                   ('General Information', {
                           'fields': ('conference', 'first_name', 'last_name', 'email', 'sex',),
