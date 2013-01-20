@@ -37,7 +37,18 @@ def attendee_emailer(request):
     c = Conference.objects.filter(end_date__gte=datetime.now())
     if c.count() == 0:
         messages.add_message(request, messages.ERROR, 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.')
-    return generic_page(request, 'DNE', 'Not implemented yet.')
+    if request.method == 'POST':
+        #TODO: implement
+        pass
+    else:
+        attendee_groups = [Attendee.objects.filter(conference=conf) for conf in c]
+        print attendee_groups, [len(g) for g in attendee_groups]
+    
+    return render_to_response('conference/admin-attendee-emailer.html',
+                              {'page_title': 'Email Attendees',
+                               'attendee_groups': attendee_groups,
+                               },
+                               RequestContext(request)) 
 
 @login_required
 def generate_schedule(request):

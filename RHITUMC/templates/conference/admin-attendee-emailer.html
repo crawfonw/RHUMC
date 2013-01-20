@@ -3,9 +3,5 @@
 {% block content %}
 <h2>Email Attendees</h2>
 <br />
-<ul>
-<li><a href="{% url admin:index %}">Management System</a></li>
-<li>Attendee Emailer</li>
-<li>LaTeX Schedule Generator</li>
-</ul>
+{{ attendee_groups }}
 {% endblock %}
