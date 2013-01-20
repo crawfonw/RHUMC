@@ -5,7 +5,12 @@
 <br />
 Avaliable Tools:
 <ul>
-<li><a href="{% url admin:index %}">Management System</a></li>
+	<li><a href="{% url admin:index %}">Management System</a>
+		<ul>
+			<li><a href="{% url admin:index %}">Management System Index</a></li>
+			{% comment %}TODO: fix this <li><a href="{% url admin:conference %}">Conferences</a></li>{% endcomment %}
+		</ul>
+	</li>
 <li><a href="{% url attendee-emailer %}">Attendee Emailer</a></li>
 <li><a href="{% url schedule-generator %}">LaTeX Schedule Generator</a></li>
 </ul>
