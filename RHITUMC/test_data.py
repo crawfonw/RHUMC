@@ -98,18 +98,20 @@ def create_attendees(n=30):
     for i in range(n):
         f = choice(first_names)
         l = choice(last_names)
+        a_type = choice(['Student', 'Faculty'])
         a = Attendee.objects.create(conference=conf, email='%s@%s.com' % (f, l), \
-                                    first_name = f, last_name=l, school=choice(schools), attendee_type=choice(['Student', 'Faculty']))
-        if randint(0,n/10) == 0:
-            a.is_submitting_talk = True
-            a.paper_title = 'Lorem Ipsum'
-            a.paper_abstract = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus luctus posuere egestas. Integer posuere nisl sit amet ipsum faucibus sollicitudin. Maecenas est mi, tempor sit amet feugiat adipiscing, porta quis sapien. Vivamus sit amet ultricies orci. Ut tristique eleifend sem. Sed porttitor, augue auctor fringilla mattis, tellus enim tristique tellus, eleifend scelerisque nisi urna elementum ipsum. In hac habitasse platea dictumst. Vivamus at ultricies neque.'
-            if randint(0,1) == 0:
-                a.is_submitted_for_best_of_competition = True
-        if randint(0,2) == 0:
-            a.requires_housing = True
-            if randint(0,1) == 0:
-                a.has_been_paired_for_housing = True
+                                    first_name = f, last_name=l, school=choice(schools), attendee_type=a_type)
+        if a_type == 'Student':
+            if randint(0,n/20) == 0:
+                a.is_submitting_talk = True
+                a.paper_title = 'Lorem Ipsum'
+                a.paper_abstract = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus luctus posuere egestas. Integer posuere nisl sit amet ipsum faucibus sollicitudin. Maecenas est mi, tempor sit amet feugiat adipiscing, porta quis sapien. Vivamus sit amet ultricies orci. Ut tristique eleifend sem. Sed porttitor, augue auctor fringilla mattis, tellus enim tristique tellus, eleifend scelerisque nisi urna elementum ipsum. In hac habitasse platea dictumst. Vivamus at ultricies neque.'
+                if randint(0,1) == 0:
+                    a.is_submitted_for_best_of_competition = True
+            if randint(0,2) == 0:
+                a.requires_housing = True
+                if randint(0,1) == 0:
+                    a.has_been_paired_for_housing = True
         a.save()
 
 def create_rooms(n=5):

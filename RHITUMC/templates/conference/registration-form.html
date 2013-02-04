@@ -1,10 +1,106 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% comment %}
 <form action="." method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ form }}
 	</br>
 	<input type="submit" value="Submit">
+</form>
+{% endcomment %}
+<form action="." method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	
+	The following information is <strong>required</strong> for <strong>anyone</strong> who registers:<br /><br />
+	
+	{{ form.email.errors }}
+	<label for="id_email"><strong>Email:</strong></label>
+	{{ form.email }}
+	<br />
+	{{ form.confirm_email.errors }}
+	<label for="id_confirm_email"><strong>Comfirm Email:</strong></label>
+	{{ form.confirm_email }}
+	<br />
+	
+	{{ form.first_name.errors }}
+	<label for="id_first_name"><strong>First Name:</strong></label>
+	{{ form.first_name }}
+	<br />
+	
+	{{ form.last_name.errors }}
+	<label for="id_last_name"><strong>Last Name:</strong></label>
+	{{ form.last_name }}
+	<br />
+	
+	{{ form.attendee_type.errors }}
+	<label for="id_attendee_type"><strong>Student or Faculty:</strong></label>
+	{{ form.attendee_type }}
+	<br />
+	
+	{{ form.school.errors }}
+	<label for="id_school"><strong>School:</strong></label>
+	{{ form.school }}
+	<br />
+	<br />
+	
+	The following is required <strong>only</strong> for students wishing to speak at the conference:<br /><br />
+	
+	{{ form.is_submitting_talk.errors }}
+	<label for="id_is_submitting_talk"><strong>Check if you are submitting a talk:</strong></label>
+	{{ form.is_submitting_talk }}
+	<br />
+	
+	{{ form.paper_title.errors }}
+	<label for="id_paper_title"><strong>Title of Paper:</strong></label>
+	{{ form.paper_title }}
+	<br />
+	
+	{{ form.paper_abstract.errors }}
+	<label for="id_paper_abstract"><strong>Abstract:</strong></label><br />
+	{{ form.paper_abstract }}
+	<br />
+	
+	{{ form.is_submitted_for_best_of_competition.errors }}
+	<label for="id_is_submitted_for_best_of_competition"><strong>Do you want your talk to be submitted to best of competition?</strong></label>
+	{{ form.is_submitted_for_best_of_competition }}
+	<br />
+	<br />
+	
+	The following is not required, but any <strong>student</strong> who wishes to provide relevant information is welcome to do so:<br /><br />
+	
+	{{ form.sex.errors }}
+	<label for="id_sex"><strong>Sex:</strong></label>
+	{{ form.sex }}
+	<br />
+	
+	{{ form.year.errors }}
+	<label for="id_year"><strong>Year in School:</strong></label>
+	{{ form.year }}
+	<br />
+	
+	{{ form.size_of_institute.errors }}
+	<label for="id_size_of_institute"><strong>Size of Your Institute:</strong></label>
+	{{ form.size_of_institute }}
+	<br />
+	
+	{{ form.dietary_restrictions.errors }}
+	<label for="id_dietary_restrictions"><strong>Please list any dietary restrictions:</strong></label><br />
+	{{ form.dietary_restrictions }}
+	<br />
+	
+	{{ form.requires_housing.errors }}
+	<label for="id_requires_housing"><strong>Do you require housing?</strong></label>
+	{{ form.requires_housing }}
+	<br />
+	
+	{{ form.comments.errors }}
+	<label for="id_comments"><strong>Any other comments:</strong></label><br />
+	{{ form.comments }}
+	<br />
+	<br />
+	
+	<input type="submit" value="Complete Registration" />
 </form>
 {% endblock %}

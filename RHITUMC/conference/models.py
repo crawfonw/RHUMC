@@ -10,6 +10,7 @@ class Conference(models.Model):
     start_date = models.DateField(help_text='yyyy-mm-dd')
     end_date = models.DateField(help_text='yyyy-mm-dd')
     registration_open = models.BooleanField(default=True)
+    show_program = models.BooleanField(help_text='Check if you want to show a version of the Conference Program directly on the website')
     
     class Meta:
         ordering = ('start_date', 'end_date',)
