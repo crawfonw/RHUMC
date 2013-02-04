@@ -37,7 +37,9 @@ table.tftable td {font-size:12px;border-width: 1px;padding: 8px;border-style: so
 		<tr>
 		{% for session in sessions %}
 			{% if session.time == timeslot and session.day == day %}
-			<td>{{ session.speaker }} - <em>{{ session.speaker.paper_title }}</em><br/>{{ session.room }}</td>
+			{% for speaker in session.speakers.all %}
+			<td>{{ speaker }} - <em>{{ speaker.paper_title }}</em></td>
+			{% endfor %}
 			{% endif %}
 		{% endfor %}
 		</tr>
