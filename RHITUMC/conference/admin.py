@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Attendee, Conference, Contactee, Page, Room, Schedule, Day, TimeSlot, Session
+from models import Attendee, Conference, Contactee, Page, Room, Track, Day, TimeSlot, Session, SpecialSession
 
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
@@ -47,13 +47,13 @@ class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference',)
     list_filter = ('registration_open',)
     search_fields = ('name',)
-
-class TimeSlotAdmin(FengShuiAdmin):
-    list_display = ('name', 'start_time', 'end_time',)
     
 class SessionAdmin(FengShuiAdmin):
     filter_horizontal = ('speakers',)
-    list_display = ('day', 'time', 'room', 'chair',)
+    list_display = ('day', 'time', 'chair',)
+    
+#class SpecialSessionAdmin(FengShuiAdmin):
+    
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
@@ -61,6 +61,7 @@ admin.site.register(Contactee)
 admin.site.register(Day)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Room)
-admin.site.register(Schedule)
+admin.site.register(Track)
 admin.site.register(Session, SessionAdmin)
-admin.site.register(TimeSlot, TimeSlotAdmin)
+admin.site.register(SpecialSession)
+admin.site.register(TimeSlot)

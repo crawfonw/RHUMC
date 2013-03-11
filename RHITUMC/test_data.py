@@ -50,17 +50,17 @@ def run(purge):
     create_contacts()
 
 def create_conferences_schedules_and_timeslots():
-    from conference.models import Conference, Day, Schedule, TimeSlot
+    from conference.models import Conference, Day, Track, TimeSlot
     
     now = datetime.now()
     past_conf = Conference.objects.create(name='Past Conference', start_date=now-timedelta(days=35), end_date=now-timedelta(days=30), registration_open=False)
     curr_conf = Conference.objects.create(name='Current Conference', start_date=now, end_date=now+timedelta(days=4), registration_open=True)
     future_conf = Conference.objects.create(name='Future Conference', start_date=now+timedelta(days=30), end_date=now+timedelta(days=35), registration_open=False)
     
-    Schedule.objects.create(conference=past_conf)
-    Schedule.objects.create(conference=future_conf)
+    Track.objects.create(conference=past_conf)
+    Track.objects.create(conference=future_conf)
     
-    s = Schedule.objects.create(conference=curr_conf)
+    s = Track.objects.create(conference=curr_conf)
     d1 = Day.objects.create(schedule=s, date=now)
     d2 = Day.objects.create(schedule=s, date=now+timedelta(days=1))
     d3 = Day.objects.create(schedule=s, date=now+timedelta(days=2))

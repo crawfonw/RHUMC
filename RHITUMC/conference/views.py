@@ -19,7 +19,7 @@ from django.db.models import Q
 from datetime import datetime
 
 from forms import AttendeeForm
-from models import Attendee, Conference, Day, Page, Session, Schedule, TimeSlot
+from models import Attendee, Conference, Day, Page, Session, Track, TimeSlot
 
 @login_required
 def admin_portal(request):
@@ -126,7 +126,7 @@ def program(request):
     
     if c is not None:
         if c.show_program:
-            current_schedule = Schedule.objects.filter(conference=c)
+            current_schedule = Track.objects.filter(conference=c)
             days = Day.objects.filter(schedule=current_schedule)
             time_slots = TimeSlot.objects.filter(schedule=current_schedule)
             sessions = Session.objects.filter(day__in=days, time__in=time_slots)

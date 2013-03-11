@@ -108,39 +108,33 @@ class Room(models.Model):
     def __unicode__(self):
         return '%s %s' % (self.building, self.room_number)
 
-class Schedule(models.Model):
-    conference = models.OneToOneField(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
+class Track(models.Model):
+    conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
+    name = models.CharField(max_length=100, help_text='Eg.: "Track A"')
+    room = models.ForeignKey(Room)
     
     def __unicode__(self):
-        return '%s schedule' % self.conference
+        return '%s' % self.name
 
 class Day(models.Model):
-    schedule = models.ForeignKey(Schedule, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     date = models.DateField(help_text='yyyy-mm-dd')
     
     class Meta:
-        ordering = ('schedule', 'date',)
-        unique_together = (('schedule', 'date',),)
+        ordering = ('date',)
 
     def __unicode__(self):
-        return '%s during %s' % (self.date, self.schedule)
-    
-    def clean(self):
-        if self.date > self.schedule.conference.end_date or self.date < self.schedule.conference.start_date:
-            raise ValidationError(u"This day's date must be within the Schedule's conference dates.")
+        return '%s' % self.date
 
 class TimeSlot(models.Model):
-    name = models.CharField(max_length=100)
-    schedule = models.ForeignKey(Schedule, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     start_time = models.TimeField(help_text='hh:mm')
     end_time = models.TimeField(help_text='hh:mm')
     
     class Meta:
-        ordering = ('schedule', 'start_time', 'end_time',)
-        unique_together = (('schedule', 'start_time', 'end_time',),)
+        ordering = ('start_time', 'end_time',)
+        unique_together = (('start_time', 'end_time',),)
     
     def __unicode__(self):
-        return '%s (%s to %s)' % (self.name, self.start_time, self.end_time)
+        return '%s to %s' % (self.name, self.start_time, self.end_time)
     
     def clean(self):
         if self.end_time < self.start_time:
@@ -152,12 +146,28 @@ class Session(models.Model):
     chair = models.ForeignKey(Attendee, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today), related_name='chair')
     speakers = models.ManyToManyField(Attendee, limit_choices_to=(models.Q(conference__end_date__gte=datetime.date.today) \
                                                                     & models.Q(is_submitting_talk=True)), related_name='speakers') #is it always one person? filter attendees to just the certain conference
-    room = models.ForeignKey(Room)
+    track = models.ForeignKey(Track, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     time = models.ForeignKey(TimeSlot)
     day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
     
     def __unicode__(self):
-        return 'Session in %s at %s on %s' % (self.room, self.time, self.day)
+        return 'Speakers: %s' % self.speakers.all()
+    
+class SpecialSession(models.Model):
+    speaker = models.CharField(max_length=100)
+    long_title = models.CharField(max_length=100, help_text='Eg.: CEO of Metron Scientific Solutions.')
+    short_title = models.CharField(max_length=100, blank=True, help_text='Eg.: Metron.')
+    short_description = models.CharField(max_length=100, help_text='To appear in the program index. Eg. Planery Talk.')
+    long_description = models.TextField(blank=True, help_text='To appear on a dedicated page of the program; extensive description of the individual, etc.')
+    
+    room = models.ForeignKey(Room)
+    time = models.ForeignKey(TimeSlot)
+    day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
+    
+    has_page_in_program = models.BooleanField(help_text='Check if you want this to have an extended page in the program. Eg. for a Plenary Talk. Leave unchecked if you just want the information to appear in the program index.')
+    
+    def __unicode__(self):
+        return 'Special Session: %s' % self.speaker
 
 class Page(models.Model):
     title = models.CharField(max_length=100)
