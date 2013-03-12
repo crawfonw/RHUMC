@@ -92,12 +92,13 @@ class LaTeXFile():
         for time_slot in self.time_slots:
             body += '%s - %s\n' % (time_slot.start_time, time_slot.end_time)
             if time_session_dict[time_slot][1] is not None:
-                body += '& \\multicolumn{4}{c|}{Room %s, %s} \\\\ \n' % \
-                 (time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
+                body += '& \\multicolumn{%s}{c|}{Room %s, %s} \\\\ \n' % \
+                 (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
                 if time_session_dict[time_slot][1].short_title is not None:
-                    body += '& \\multicolumn{4}{c|}{%s, %s} \\\\\n' % (time_session_dict[time_slot][1].speaker, time_session_dict[time_slot][1].short_title)
+                    body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
+                                                                         time_session_dict[time_slot][1].short_title)
                 else:
-                    body += '& \\multicolumn{4}{c|}{%s} \\\\\n' % time_session_dict[time_slot][1].speaker
+                    body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
             elif time_session_dict[time_slot][0] is not None:
                 temp1 = ''
                 temp2 = ''
