@@ -92,9 +92,9 @@ class LaTeXFile():
         for time_slot in self.time_slots:
             body += '%s - %s\n' % (time_slot.start_time, time_slot.end_time)
             if time_session_dict[time_slot][1] is not None:
-                body += '& \\multicolumn{%s}{c|}{Room %s, %s} \\\\ \n' % \
+                body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
                  (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
-                if time_session_dict[time_slot][1].short_title is not None:
+                if time_session_dict[time_slot][1].short_title != '':
                     body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
                                                                          time_session_dict[time_slot][1].short_title)
                 else:
@@ -135,12 +135,16 @@ class LaTeXFile():
         header2 += ' \\\\\n\\hline\n'
         return header1 + header2
         
-        
     def build_special_sessions(self):
-        pass
+        body = '\section*{Program - Plenary Speakers}\n\n'
+        for session in self.special_sessions:
+            if session.has_page_in_program:
+                body += self.build_single_session(session)
+        return body
+        
 
-    def build_single_session(self):
-        pass
+    def build_single_session(self, session):
+        return '\\noindent{\\bf %s \\\\\n%s \\\\\nRoom: %s \\\\\nTime: %s \\\\\nDate: %s}\n\n\\bigskip\n\n\\noindent{\\bf About %s}\n\n\\medskip\n\n%s\n\n\\newpage' % (session.speaker, session.long_title, session.room, session.time, session.day, session.speaker, session.long_description)
 
     def build_student_talks(self):
         pass

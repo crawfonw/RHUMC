@@ -80,6 +80,8 @@ def generate_schedule(request):
     l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
     print l.build_table_of_contents()
     print
+    print l.build_special_sessions()
+    print
     
     return generic_page(request, 'DNE', 'Not implemented yet.')
 
