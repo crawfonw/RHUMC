@@ -52,6 +52,8 @@ def attendee_emailer(request):
 
 @login_required
 def generate_schedule(request):
+    #grab the schedules ordered by Tracks!
+    #Obj.objects.order_by('ORDERING')
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
     return generic_page(request, 'DNE', 'Not implemented yet.')
