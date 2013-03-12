@@ -99,12 +99,23 @@ class LaTeXFile():
                 else:
                     body += '& \\multicolumn{4}{c|}{%s} \\\\\n' % time_session_dict[time_slot][1].speaker
             elif time_session_dict[time_slot][0] is not None:
-                for session in time_session_dict[time_slot][0]: #will be sorted correctly based on Tracks from the view
-                    body += '& %s' % ', '.join([str(s) for s in session.speakers.all()])
-                body += ' \\\\\n'
-                for session in time_session_dict[time_slot][0]: #will be sorted correctly based on Tracks from the view
-                    body += '& %s' % session.speakers.all()[0].school
-                body += ' \\\\\n'
+                temp1 = ''
+                temp2 = ''
+                for track in self.tracks:
+                    #Sessions will be sorted correctly based on Tracks from the view
+                    has_talk = False
+                    for session in time_session_dict[time_slot][0]:
+                        if session.track == track:
+                            temp1 += '& %s ' % ', '.join([str(s) for s in session.speakers.all()])
+                            temp2 += '& %s ' % session.speakers.all()[0].school
+                            has_talk = True
+                            break
+                    if not has_talk:
+                        temp1 += '& '
+                        temp2 += '& '
+                temp1 += ' \\\\\n'
+                temp2 += ' \\\\\n'
+                body += temp1 + temp2
             else:
                 temp = '& ' * len(self.tracks)
                 body += ('%s\\\\\n' % temp) * 2
