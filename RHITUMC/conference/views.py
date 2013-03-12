@@ -19,7 +19,17 @@ from django.db.models import Q
 from datetime import datetime
 
 from forms import AttendeeForm
-from models import Attendee, Conference, Day, Page, Session, Track, TimeSlot
+from models import Attendee, Conference, Day, Page, Session, SpecialSession, Track, TimeSlot
+
+from LaTeX import LaTeXFile
+
+def _get_current_conference():
+    c = Conference.objects.filter(end_date__gte=datetime.now())
+    if c.count() > 0:
+        c = c[0]
+    else:
+        c = None
+    return c
 
 @login_required
 def admin_portal(request):
@@ -34,8 +44,8 @@ def admin_portal(request):
 def attendee_emailer(request):
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
-    c = Conference.objects.filter(end_date__gte=datetime.now())
-    if c.count() == 0:
+    c = _get_current_conference()
+    if c is None:
         messages.add_message(request, messages.ERROR, 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.')
     if request.method == 'POST':
         #TODO: implement
@@ -56,6 +66,21 @@ def generate_schedule(request):
     #Obj.objects.order_by('ORDERING')
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
+    c = _get_current_conference()
+    if c is None:
+        return generic_page(request, 'No Conference', 'No conferences avaliable.')
+    sessions = Session.objects.filter(day__conference=c)
+    special_sessions = SpecialSession.objects.filter(day__conference=c)
+    tracks = Track.objects.filter(conference=c)
+    time_slots = TimeSlot.objects.filter(conference=c)
+    
+    print 'Sessions: %s\nSpecial: %s\nTracks: %s\nTime Slots: %s\n' % (sessions, special_sessions, tracks, time_slots)
+    
+    #Build LaTeX file
+    l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
+    print l.build_table_of_contents()
+    print
+    
     return generic_page(request, 'DNE', 'Not implemented yet.')
 
 def generic_page(request, page_title, text):
@@ -72,8 +97,8 @@ def index(request):
                                RequestContext(request))
 
 def register_attendee(request):    
-    c = Conference.objects.filter(end_date__gte=datetime.now())
-    if c.count() == 0:
+    c = _get_current_conference()
+    if c is None:
         text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
         return generic_page(request, 'Registration', text)
     if request.method == 'POST':
@@ -95,7 +120,7 @@ def register_attendee(request):
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
             
-            Attendee.objects.create(conference=c[0], \
+            Attendee.objects.create(conference=c, \
                                     email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
                                     attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
@@ -103,7 +128,7 @@ def register_attendee(request):
                                     is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
                                     )
-            messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c[0].format_date())
+            messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
             return HttpResponseRedirect(reverse('conference-index'))
             
     else:
@@ -120,12 +145,7 @@ def page(request, page_id):
 
 def program(request):
     #TODO: fix/update this
-    c = Conference.objects.filter(end_date__gte=datetime.now())
-    if c.count() > 0:
-        c = c[0]
-    else:
-        c = None
-    
+    c = _get_current_conference()
     if c is not None:
         if c.show_program:
             current_schedule = Track.objects.filter(conference=c)

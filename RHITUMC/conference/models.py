@@ -10,7 +10,7 @@ class Conference(models.Model):
     start_date = models.DateField(help_text='yyyy-mm-dd')
     end_date = models.DateField(help_text='yyyy-mm-dd')
     registration_open = models.BooleanField(default=True)
-    show_program = models.BooleanField(help_text='Check if you want to show a version of the Conference Program directly on the website')
+    show_program = models.BooleanField(help_text='WORK IN PROGRESS: Check if you want to show a version of the Conference Program directly on the website')
     
     class Meta:
         ordering = ('start_date', 'end_date',)
@@ -88,7 +88,7 @@ class Attendee(models.Model):
         ordering = ('last_name', 'first_name',)
     
     def __unicode__(self):
-        return '%s, %s' % (self.last_name, self.first_name) 
+        return '%s, %s' % (self.last_name, self.first_name)
     
     def clean(self):
         if self.is_submitting_talk:
@@ -117,6 +117,7 @@ class Track(models.Model):
         return '%s' % self.name
 
 class Day(models.Model):
+    conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
     date = models.DateField(help_text='yyyy-mm-dd')
     
     class Meta:
@@ -124,8 +125,13 @@ class Day(models.Model):
 
     def __unicode__(self):
         return '%s' % self.date
+    
+    def clean(self):
+        if self.date > self.conference.end_date or self.date < self.conference.start_date:
+            raise ValidationError(u"This day's date must be within the Conference dates.")
 
 class TimeSlot(models.Model):
+    conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
     start_time = models.TimeField(help_text='hh:mm')
     end_time = models.TimeField(help_text='hh:mm')
     
@@ -134,7 +140,7 @@ class TimeSlot(models.Model):
         unique_together = (('start_time', 'end_time',),)
     
     def __unicode__(self):
-        return '%s to %s' % (self.name, self.start_time, self.end_time)
+        return '%s to %s' % (self.start_time, self.end_time)
     
     def clean(self):
         if self.end_time < self.start_time:
@@ -149,6 +155,9 @@ class Session(models.Model):
     track = models.ForeignKey(Track, limit_choices_to=models.Q(conference__end_date__gte=datetime.date.today))
     time = models.ForeignKey(TimeSlot)
     day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
+    
+    class Meta:
+        ordering = ('day', 'time', 'track')
     
     def __unicode__(self):
         return 'Speakers: %s' % self.speakers.all()

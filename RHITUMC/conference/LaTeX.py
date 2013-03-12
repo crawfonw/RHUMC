@@ -1,4 +1,3 @@
-
 class LaTeXFile():
     
     def __init__(self, sessions, special_sessions, time_slots, tracks):
@@ -96,28 +95,40 @@ class LaTeXFile():
                 body += '& \\multicolumn{4}{c|}{Room %s, %s} \\\\ \n' % \
                  (time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
                 if time_session_dict[time_slot][1].short_title is not None:
-                    body += '& \\multicolumn{4}{c|}{%s, %s} \\\\' % (time_session_dict[time_slot][1].speaker, time_session_dict[time_slot][1].short_title)
+                    body += '& \\multicolumn{4}{c|}{%s, %s} \\\\\n' % (time_session_dict[time_slot][1].speaker, time_session_dict[time_slot][1].short_title)
                 else:
-                    body += '& \\multicolumn{4}{c|}{%s} \\\\' % time_session_dict[time_slot][1].speaker
+                    body += '& \\multicolumn{4}{c|}{%s} \\\\\n' % time_session_dict[time_slot][1].speaker
             elif time_session_dict[time_slot][0] is not None:
-                for session in time_session_dict[time_slot][0]: #will be sorted correctly from the view
-                    body += '& %s' % ', '.join([s.name for s in session.speakers.all()])
-                body += '\\'
-                for session in time_session_dict[time_slot][0]: #will be sorted correctly from the view
-                    body += '& %s' % session.room
-                body += '\\'
-            body += '\\hline'
+                for session in time_session_dict[time_slot][0]: #will be sorted correctly based on Tracks from the view
+                    body += '& %s' % ', '.join([str(s) for s in session.speakers.all()])
+                body += ' \\\\\n'
+                for session in time_session_dict[time_slot][0]: #will be sorted correctly based on Tracks from the view
+                    body += '& %s' % session.speakers.all()[0].school
+                body += ' \\\\\n'
+            else:
+                temp = '& ' * len(self.tracks)
+                body += ('%s\\\\\n' % temp) * 2
+            body += '\\hline\n'
         body += '\\end{tabular}'
+        return body
                     
         
     def build_header(self):
-        header1 = '\\begin{tabular}{c|%s}' % '|c|' * len(self.tracks)
+        header1 = '\\begin{tabular}{c||%s}\n' % ('c|' * len(self.tracks))
         header2 = ''
         for track in self.tracks:
-            header1 += '& \\multicolumn{1}{c|}{\\bf %s}' % track.name
-            header2 ++ '& \\multicolumn{1}{c|}{\\bf Room %s}' % track.room.room_number
-        header1 += '\\\\'
-        header2 += '\\\\\n\\hline\n'
+            header1 += '& \\multicolumn{1}{c|}{\\bf %s}\n' % track.name
+            header2 += '& \\multicolumn{1}{c|}{\\bf Room %s}\n' % track.room.room_number
+        header1 += ' \\\\\n'
+        header2 += ' \\\\\n\\hline\n'
+        return header1 + header2
         
         
-        
+    def build_special_sessions(self):
+        pass
+
+    def build_single_session(self):
+        pass
+
+    def build_student_talks(self):
+        pass
