@@ -23,7 +23,7 @@ class AttendeeForm(forms.Form):
     
     school = forms.CharField(max_length=100)
     size_of_institute = EmptyChoiceField(choices=Attendee.SIZE, required=False, empty_label='------')
-    max_degree = EmptyChoiceField(choices=Attendee.DEG, empty_label='------')
+    max_degree = forms.CharField(widget=forms.Select(choices=Attendee.DEG), max_length=10)
     attendee_type = forms.CharField(widget=forms.Select(choices=Attendee.STATUS), max_length=7)
     year = EmptyChoiceField(choices=Attendee.YEAR, required=False, empty_label='------')
     
