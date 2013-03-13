@@ -91,14 +91,9 @@ def generate_schedule(request):
     tracks = Track.objects.filter(conference=c)
     time_slots = TimeSlot.objects.filter(conference=c)
     
-    print 'Sessions: %s\nSpecial: %s\nTracks: %s\nTime Slots: %s\n' % (sessions, special_sessions, tracks, time_slots)
-    
-    #Build LaTeX file
     l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
-    print l.generate_program()
-    print
     
-    return generic_page(request, 'DNE', 'Not implemented yet.')
+    return generic_page(request, 'Generated LaTeX Schedule', l.generate_program())
 
 def generic_page(request, page_title, text):
     return render_to_response('conference/generic-text.html',
