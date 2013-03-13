@@ -35,13 +35,18 @@
 	<br />
 	
 	{{ form.attendee_type.errors }}
-	<label for="id_attendee_type"><strong>Student or Faculty:</strong></label>
+	<label for="id_attendee_type"><strong>Student/Faculty/Other:</strong></label>
 	{{ form.attendee_type }}
 	<br />
 	
 	{{ form.school.errors }}
 	<label for="id_school"><strong>School:</strong></label>
 	{{ form.school }}
+	<br />
+	
+	{{ form.max_degree.errors }}
+	<label for="id_max_degree"><strong>Maximum Mathematics Degree Offered by your Institute:</strong></label>
+	{{ form.max_degree }}
 	<br />
 	<br />
 	

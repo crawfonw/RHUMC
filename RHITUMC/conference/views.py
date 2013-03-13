@@ -16,12 +16,16 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile 
 from django.db.models import Q
 
+from django.core.mail import EmailMultiAlternatives
+
 from datetime import datetime
 
 from forms import AttendeeForm
-from models import Attendee, Conference, Day, Page, Session, SpecialSession, Track, TimeSlot
+from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXFile
+
+FORWARD_REGISTRATIONS = True
 
 def _get_current_conference():
     c = Conference.objects.filter(end_date__gte=datetime.now())
@@ -30,6 +34,19 @@ def _get_current_conference():
     else:
         c = None
     return c
+
+def _get_active_conference_hosts_emails():
+    return [host.email for host in Contactee.objects.filter(active_contact=True).all()]
+
+def _email_hosts_registration_info(attendee):
+    to = _get_active_conference_hosts_emails()
+    if len(to) > 0:
+        subject = 'New Conference Registration'
+        from_email = 'mathconf@mathconf.csse.rose-hulman.edu'
+        
+        text_content = attendee.all_info()
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.send()
 
 @login_required
 def admin_portal(request):
@@ -119,15 +136,20 @@ def register_attendee(request):
             f_dietary_restrictions = form.cleaned_data['dietary_restrictions']
             f_requires_housing = form.cleaned_data['requires_housing']
             f_comments = form.cleaned_data['comments']
+            f_max_degree = form.cleaned_data['max_degree']
             
-            Attendee.objects.create(conference=c, \
+            new_attendee = Attendee.objects.create(conference=c, \
                                     email=f_email, first_name=f_first_name, last_name=f_last_name, \
                                     sex=f_sex, school=f_school, size_of_institute=f_size_of_institute, \
                                     attendee_type=f_attendee_type, year=f_year, is_submitting_talk=f_is_submitting_talk, \
                                     paper_title=f_paper_title, paper_abstract=f_paper_abstract, \
                                     is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
-                                    )
+                                    max_degree=f_max_degree,)
+            
+            if FORWARD_REGISTRATIONS:
+                _email_hosts_registration_info(new_attendee)
+            
             messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
             return HttpResponseRedirect(reverse('conference-index'))
             

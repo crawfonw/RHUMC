@@ -23,12 +23,14 @@ class AttendeeForm(forms.Form):
     
     school = forms.CharField(max_length=100)
     size_of_institute = EmptyChoiceField(choices=Attendee.SIZE, required=False, empty_label='------')
+    max_degree = EmptyChoiceField(choices=Attendee.DEG, empty_label='------')
     attendee_type = forms.CharField(widget=forms.Select(choices=Attendee.STATUS), max_length=7)
     year = EmptyChoiceField(choices=Attendee.YEAR, required=False, empty_label='------')
     
     is_submitting_talk = forms.BooleanField(required=False)
     paper_title = forms.CharField(max_length=100, required=False)
-    paper_abstract = forms.CharField(required=False, widget=forms.Textarea)
+    paper_abstract = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols':'100',
+'rows':'20'}))
     is_submitted_for_best_of_competition = forms.BooleanField(required=False)
     
     dietary_restrictions = forms.CharField(required=False, widget=forms.Textarea)
@@ -42,4 +44,9 @@ class AttendeeForm(forms.Form):
             self._errors['confirm_email'] = self.error_class([msg])
             del self.cleaned_data['email']
             #del self.cleaned_data['confirm_email']
+        if self.cleaned_data.get('is_submitting_talk'):
+            if self.cleaned_data.get('paper_title') == '':
+                self._errors['paper_title'] = self.error_class([u"You must provide your paper's title if you are submitting a talk."])
+            if self.cleaned_data.get('paper_abstract') == '':
+                self._errors['paper_abstract'] = self.error_class([u"You must provide your paper's abstract if you are submitting a talk."])
         return self.cleaned_data

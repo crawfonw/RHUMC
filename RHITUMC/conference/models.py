@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.localflavor.us.models import PhoneNumberField 
+from django.contrib.localflavor.us.models import PhoneNumberField
 
 import datetime
 
@@ -53,6 +53,7 @@ class Attendee(models.Model):
     
     STATUS = (('Student', 'Student'),
               ('Faculty', 'Faculty'),
+              ('Other', 'Other'),
               )
     
     YEAR = (('FR', 'FR'),
@@ -61,6 +62,10 @@ class Attendee(models.Model):
             ('SR', 'SR'),
             ('Other', 'Other'),
             )
+    
+    DEG = (("Bachelor's", "Bachelor's"),
+           ("Master's", "Master's"),
+           ('Doctorate', 'Doctorate'),)
     
     conference = models.ForeignKey(Conference)
     
@@ -73,6 +78,7 @@ class Attendee(models.Model):
     size_of_institute = models.CharField(choices=SIZE, max_length=10, blank=True)
     attendee_type = models.CharField(choices=STATUS, max_length=7)
     year = models.CharField(choices=YEAR, max_length=5, blank=True)
+    max_degree = models.CharField(choices=DEG, max_length=10, blank=True)
     
     is_submitting_talk = models.BooleanField()
     paper_title = models.CharField(max_length=100, blank=True)
@@ -96,6 +102,32 @@ class Attendee(models.Model):
                 raise ValidationError(u'Paper Title is required if attendee is submitting a talk!')
             if self.paper_abstract == '':
                 raise ValidationError(u'Paper Abstract is required if attendee is submitting a talk!')
+            
+    def all_info(self):
+        info = 'Registration for: %s\n\nName: %s\nEmail: %s\nType: %s\nSchool: %s\n\n' % (self.conference, str(self), self.email, self.attendee_type, self.school)
+        if self.year != '':
+            info += 'Year in School: %s\n' % self.year
+        if self.size_of_institute != '':
+            info += 'Size of Institute: %s\n' % self.size_of_institute
+        if self.max_degree != '':
+            info += 'Max Math Degree at Institute: %s\n\n' % self.max_degree
+        if self.is_submitting_talk:
+            info += 'Paper submission info:\n\nTitle: %s\nAbstract:\n%s\n\n' % (self.paper_title, self.paper_abstract)
+            if self.is_submitted_for_best_of_competition:
+                info += 'They wish to be considered for best of competition.\n\n'
+        else:
+            info += 'Not submitting a talk.\n\n'
+        if self.sex != '':
+            info += 'Sex: %s\n' % self.sex
+        if self.requires_housing:
+            info += 'This individual requires housing.\n'
+        else:
+            info += 'Does not need housing.\n'
+        if self.dietary_restrictions != '':
+            info += 'Dietary restrictions:\n%s\n' % self.dietary_restrictions
+        if self.comments != '':
+            info += 'Comments:\n%s\n' % self.comments
+        return info
 
 class Room(models.Model):
     building = models.CharField(max_length=100)

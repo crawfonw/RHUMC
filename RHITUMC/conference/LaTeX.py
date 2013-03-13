@@ -98,7 +98,6 @@ class LaTeXFile():
             if session.has_page_in_program:
                 body += self.build_single_session(session)
         return body
-        
 
     def build_single_session(self, session):
         return '\\noindent{\\bf %s \\\\\n%s \\\\\nRoom: %s \\\\\nTime: %s \\\\\nDate: %s}\n\n\\bigskip\n\n\\noindent{\\bf About %s}\n\n\\medskip\n\n%s\n\n' % (session.speaker, session.long_title, session.room, session.time, session.day, session.speaker, session.long_description)
