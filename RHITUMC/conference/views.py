@@ -16,11 +16,11 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile 
 from django.db.models import Q
 
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
 from datetime import datetime
 
-from forms import AttendeeForm
+from forms import AttendeeEmailerForm, AttendeeForm, LaTeXForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXFile
@@ -48,6 +48,13 @@ def _email_hosts_registration_info(attendee):
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.send()
 
+def generic_page(request, page_title, text, template='conference/generic-text.html'):
+    return render_to_response(template,
+                              {'page_title': page_title,
+                               'text': text,
+                               },
+                               RequestContext(request))
+
 @login_required
 def admin_portal(request):
     if not (request.user.is_staff or request.user.is_superuser): 
@@ -65,15 +72,27 @@ def attendee_emailer(request):
     if c is None:
         messages.add_message(request, messages.ERROR, 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.')
     if request.method == 'POST':
-        #TODO: implement
-        pass
+        form = AttendeeEmailerForm(request.POST)
+        if form.is_valid():
+            conf = form.cleaned_data['conference']
+            host = form.cleaned_data['host']
+            email_subject = form.cleaned_data['email_subject']
+            email_body = form.cleaned_data['email_body']
+            
+            conference_attendees = Attendee.objects.filter(conference=conf)
+            
+            mail_messages = []
+            for attendee in conference_attendees:
+                mail_messages.append((email_subject, email_body, host.email, [attendee.email]))
+            send_mass_mail(mail_messages, fail_silently=False)
+            messages.add_message(request, messages.SUCCESS, 'Email sent to %s attendees.' % len(mail_messages))
+            
     else:
-        attendee_groups = [Attendee.objects.filter(conference=conf) for conf in c]
-        print attendee_groups, [len(g) for g in attendee_groups]
+        form = AttendeeEmailerForm()
     
     return render_to_response('conference/admin-attendee-emailer.html',
                               {'page_title': 'Email Attendees',
-                               'attendee_groups': attendee_groups,
+                               'form': form,
                                },
                                RequestContext(request)) 
 
@@ -85,22 +104,32 @@ def generate_schedule(request):
         return HttpResponseRedirect(reverse('conference-index'))
     c = _get_current_conference()
     if c is None:
-        return generic_page(request, 'No Conference', 'No conferences avaliable.')
-    sessions = Session.objects.filter(day__conference=c)
-    special_sessions = SpecialSession.objects.filter(day__conference=c)
-    tracks = Track.objects.filter(conference=c)
-    time_slots = TimeSlot.objects.filter(conference=c)
+        messages.add_message(request, messages.ERROR, 'No conferences scheduled.')
     
-    l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
+    if request.method == 'POST':
+        form = LaTeXForm(request.POST)
+        if form.is_valid():
+            conf = form.cleaned_data['conference']
+            sessions = Session.objects.filter(day__conference=conf)
+            special_sessions = SpecialSession.objects.filter(day__conference=conf)
+            tracks = Track.objects.filter(conference=conf)
+            time_slots = TimeSlot.objects.filter(conference=conf)
+            
+            l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
     
-    return generic_page(request, 'Generated LaTeX Schedule', l.generate_program())
-
-def generic_page(request, page_title, text):
-    return render_to_response('conference/generic-text.html',
-                              {'page_title': page_title,
-                               'text': text,
+            response = HttpResponse(l.generate_program(), content_type='application/x-latex')
+            response['Content-Disposition'] = 'attachment; filename="program.tex"'
+            return response
+    else:
+        form = LaTeXForm()
+        
+    return render_to_response('conference/program-gen.html',
+                              {'page_title': 'Generate LaTeX Program',
+                               'form': form,
                                },
-                               RequestContext(request))
+                               RequestContext(request)) 
+    
+    
 
 def index(request):
     return render_to_response('conference/index.html',
@@ -145,8 +174,10 @@ def register_attendee(request):
             if FORWARD_REGISTRATIONS:
                 _email_hosts_registration_info(new_attendee)
             
-            messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
-            return HttpResponseRedirect(reverse('conference-index'))
+            return generic_page(request, 'Registration Complete', '<b>Thanks, you are now registered for %s!</b>' % c.name)
+            
+            #messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
+            #return HttpResponseRedirect(reverse('conference-index'))
             
     else:
         form = AttendeeForm()
@@ -161,6 +192,7 @@ def page(request, page_id):
     return generic_page(request, p.title, p.page_text)
 
 def program(request):
+    #WIP
     #TODO: fix/update this
     c = _get_current_conference()
     if c is not None:

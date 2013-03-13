@@ -41,15 +41,16 @@
       <td width="10%">
       <!--Menu on Left -->
       <table>
-         <tr> <td> <a href="http://www.rose-hulman.edu/~holder/RHIT2013/index.shtml"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/~holder/RHIT2013/cfp.shtml"> <font color="#800000" size="+1"><b>Call For Papers</b></font></a> </td> </tr>
+         <tr> <td> <a href="{% url conference-index %}"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
          <tr> <td> <a href="{% url conference-registration %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/~holder/RHIT2013/program.shtml"> <font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/~holder/RHIT2013/hotel.shtml"> <font color="#800000" size="+1"><b>Accommodations</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/~holder/RHIT2013/map.shtml"> <font color="#800000" size="+1"><b>Maps</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/history.php"> <font color="#800000" size="+1"><b>Archives</b></font></a> </td> </tr>
-         <tr> <td> <a href="http://www.rose-hulman.edu/math.aspx"> <font color="#800000" size="+1"><b>RHIT Math</b></font></a> </td> </tr>
-         
+         <tr> <td> <a href="{% url conference-program %}"><font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
+         {% for page in PAGES %}
+         {% if page.is_link %}
+         <tr> <td> <a href="{{ page.link }}"><font color="#800000" size="+1"><b>{{ page.title }}</b></font></a> </td> </tr>
+         {% elif page.on_sidebar %}
+         <tr> <td> <a href="{% url conference-page page.pk %}"><font color="#800000" size="+1"><b>{{ page.title }}</b></font></a> </td> </tr>
+         {% endif %}
+         {% endfor %}
       </table>
       </td>
 

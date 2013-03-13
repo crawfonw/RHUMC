@@ -3,5 +3,30 @@
 {% block content %}
 <h2>Email Attendees</h2>
 <br />
-{{ attendee_groups }}
+<form action="." method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	
+	{{ form.conference.errors }}
+	<label for="id_conference"><strong>Conference:</strong></label>
+	{{ form.conference }}
+	<br />
+	
+	{{ form.host.errors }}
+	<label for="id_host"><strong>From Email:</strong></label>
+	{{ form.host }}
+	<br />
+	
+	{{ form.email_subject.errors }}
+	<label for="id_email_subject"><strong>Subject:</strong></label>
+	{{ form.email_subject }}
+	<br />
+	
+	{{ form.email_body.errors }}
+	<label for="id_email_body"><strong>Body:</strong></label><br />
+	{{ form.email_body }}
+	<br />
+	
+	<input type="submit" value="Submit">
+</form>
 {% endblock %}

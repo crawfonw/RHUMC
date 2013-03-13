@@ -1,5 +1,5 @@
 from django import forms
-from conference.models import Attendee
+from conference.models import Attendee, Conference, Contactee
 from django.forms import ModelForm
 
 #https://gist.github.com/651080
@@ -50,3 +50,13 @@ class AttendeeForm(forms.Form):
             if self.cleaned_data.get('paper_abstract') == '':
                 self._errors['paper_abstract'] = self.error_class([u"You must provide your paper's abstract if you are submitting a talk."])
         return self.cleaned_data
+    
+class AttendeeEmailerForm(forms.Form):
+    conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    host = forms.ModelChoiceField(queryset = Contactee.objects.filter(active_contact=True))
+    email_subject = forms.CharField(max_length=100)
+    email_body = forms.CharField(widget=forms.Textarea)
+    
+class LaTeXForm(forms.Form):
+    conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    
