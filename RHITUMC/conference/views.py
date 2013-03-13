@@ -78,9 +78,7 @@ def generate_schedule(request):
     
     #Build LaTeX file
     l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
-    print l.build_table_of_contents()
-    print
-    print l.build_special_sessions()
+    print l.generate_program()
     print
     
     return generic_page(request, 'DNE', 'Not implemented yet.')

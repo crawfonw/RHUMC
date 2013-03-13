@@ -6,75 +6,33 @@ class LaTeXFile():
         self.special_sessions = special_sessions
         self.time_slots = time_slots
         self.tracks = tracks
-        self.doc = '''
-                    \documentclass{article}
+        self.doc = '''\\documentclass{article}
 
-                    \begin{document}
+\\begin{document}
 
-                    \section*{Program At-A-Glance}
-                    
-                    %s
-                    
-                    \newpage
+\\section*{Program At-A-Glance}
 
-                    \section*{Program - Plenary Speakers}
-                    
-                    %s
-                    
-                    \newpage
+%s
 
-                    \section*{Program - Undergraduate Talks}
-                    
-                    %s
-                    
-                    \end{document}
-                    '''
+\\newpage
+
+\\section*{Program - Plenary Speakers}
+
+%s
+
+\\newpage
+
+\\section*{Program - Undergraduate Talks}
+
+%s
+
+\\end{document}
+'''
+
+    def generate_program(self):
+        return self.doc % (self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
 
     def build_table_of_contents(self):
-        '''
-            \begin{tabular}{c||c|c|c|c|}
-            & \multicolumn{1}{c|}{\bf Track A} & 
-                \multicolumn{1}{c|}{\bf Track B} & 
-                \multicolumn{1}{c|}{\bf Track C} & 
-                \multicolumn{1}{c|}{\bf Track D} \\
-            & \multicolumn{1}{c|}{\bf Room G219} & 
-                \multicolumn{1}{c|}{\bf Room G220} & 
-                \multicolumn{1}{c|}{\bf Room G221} & 
-                \multicolumn{1}{c|}{\bf Room G222} \\
-            \hline
-            1:35 - 1:40 
-                & \multicolumn{4}{c|}{Room E104, Introductory Comments from} \\
-                & \multicolumn{4}{c|}{President Robert Coons}\\
-            \hline
-            1:40 - 2:25 
-                & \multicolumn{4}{c|}{Room E104, Plenary Talk} \\
-                & \multicolumn{4}{c|}{Dr. Thomas Mifflin, Metron} \\
-            \hline
-            2:30 - 3:50 & Speaker 1 & Speaker 2 & Speaker 3 & Speaker 4 \\
-                & School 1 & School 2 & School 3 & School 4 \\
-            \hline
-            3:55 - 4:15 & Speaker 1 & Speaker 2 & Speaker 3 & Speaker 4 \\
-                & School 1 & School 2 & School 3 & School 4 \\
-            \hline
-            4:20 - 4:40 & Speaker 1 & Speaker 2 & Speaker 3 & Speaker 4 \\
-                & School 1 & School 2 & School 3 & School 4 \\
-            \hline
-            4:45 - 5:05 & Speaker 1 & Speaker 2 & Speaker 3 & Speaker 4 \\
-                & School 1 & School 2 & School 3 & School 4 \\
-            \hline
-            5:30 - 6:45
-                & \multicolumn{4}{c|}{Faculty Dinning Area, Hulman Union} \\
-                & \multicolumn{4}{c|}{Dinner} \\
-            \hline
-            7:00 - 8:00
-                & \multicolumn{4}{c|}{Room E104, Plenary talk} \\
-                & \multicolumn{4}{c|}{Dr. Tony Nance, Mathematical Biosciences Institute} \\
-            \hline \hline
-            8:30 - 8:50 & Speaker 1 & Speaker 2 & Speaker 3 & Speaker 4 \\
-                & School 1 & School 2 & School 3 & School 4 \\
-            \hline
-            \end{tabular}
-            '''
         return self.build_header() + self.build_body()
         
     def build_body(self):
@@ -90,7 +48,7 @@ class LaTeXFile():
                 time_session_dict[special_session.time][1] = special_session
         body = ''
         for time_slot in self.time_slots:
-            body += '%s - %s\n' % (time_slot.start_time, time_slot.end_time)
+            body += '%s\n' % time_slot
             if time_session_dict[time_slot][1] is not None:
                 body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
                  (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
@@ -123,7 +81,6 @@ class LaTeXFile():
             body += '\\hline\n'
         body += '\\end{tabular}'
         return body
-                    
         
     def build_header(self):
         header1 = '\\begin{tabular}{c||%s}\n' % ('c|' * len(self.tracks))
@@ -136,7 +93,7 @@ class LaTeXFile():
         return header1 + header2
         
     def build_special_sessions(self):
-        body = '\section*{Program - Plenary Speakers}\n\n'
+        body = ''
         for session in self.special_sessions:
             if session.has_page_in_program:
                 body += self.build_single_session(session)
@@ -144,7 +101,35 @@ class LaTeXFile():
         
 
     def build_single_session(self, session):
-        return '\\noindent{\\bf %s \\\\\n%s \\\\\nRoom: %s \\\\\nTime: %s \\\\\nDate: %s}\n\n\\bigskip\n\n\\noindent{\\bf About %s}\n\n\\medskip\n\n%s\n\n\\newpage' % (session.speaker, session.long_title, session.room, session.time, session.day, session.speaker, session.long_description)
+        return '\\noindent{\\bf %s \\\\\n%s \\\\\nRoom: %s \\\\\nTime: %s \\\\\nDate: %s}\n\n\\bigskip\n\n\\noindent{\\bf About %s}\n\n\\medskip\n\n%s\n\n' % (session.speaker, session.long_title, session.room, session.time, session.day, session.speaker, session.long_description)
 
     def build_student_talks(self):
-        pass
+        body = ''
+        
+        d = {}
+        l = []
+        for a in self.sessions:
+            d[a] = a.speakers.all().order_by('last_name')[0].last_name
+        for k, v in sorted(d.items(), key=lambda x: x[1]):
+            l.append(k)
+        
+        for session in l:
+            body += self.build_single_talk(session)
+        return body
+    
+    def build_single_talk(self, talk):
+        speakers = talk.speakers.all()
+        body = '\\noindent{\\bf '
+        for speaker in speakers:
+            body += '%s-%s, ' % (str(speaker), speaker.school)
+        body = body[:-2]
+        body += ' \\\\\n'
+        body += '%s \\\\\n' % speakers[0].paper_title
+        body += '%s %s in %s}\n\n' % (talk.day, talk.time, talk.track.room)
+        body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0].paper_abstract
+        return body
+        
+        
+        
+        
+        

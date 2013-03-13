@@ -124,7 +124,7 @@ class Day(models.Model):
         ordering = ('date',)
 
     def __unicode__(self):
-        return '%s' % self.date
+        return '%s' % datetime.date.strftime(self.date, '%A %m/%d/%Y')
     
     def clean(self):
         if self.date > self.conference.end_date or self.date < self.conference.start_date:
@@ -132,15 +132,15 @@ class Day(models.Model):
 
 class TimeSlot(models.Model):
     conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
-    start_time = models.TimeField(help_text='hh:mm')
-    end_time = models.TimeField(help_text='hh:mm')
+    start_time = models.TimeField(help_text='hh:mm (input in 24-hour format)')
+    end_time = models.TimeField(help_text='hh:mm (input in 24-hour format)')
     
     class Meta:
         ordering = ('start_time', 'end_time',)
         unique_together = (('start_time', 'end_time',),)
     
     def __unicode__(self):
-        return '%s to %s' % (self.start_time, self.end_time)
+        return '%s - %s' % (datetime.time.strftime(self.start_time, '%I:%M %p'), datetime.time.strftime(self.end_time, '%I:%M %p'))
     
     def clean(self):
         if self.end_time < self.start_time:
