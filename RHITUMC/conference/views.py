@@ -47,6 +47,16 @@ def _email_hosts_registration_info(attendee):
         text_content = attendee.all_info()
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.send()
+        
+def _email_attendee_registration_info(attendee):
+    subject = 'Conference Registration Confirmation'
+    from_email = 'mathconf@mathconf.csse.rose-hulman.edu'
+    to = [attendee.email]
+    
+    text_content = 'Thank you for registering for our conference! Here is the information you provided for your records. If you have any questions, comments, or concerns, please see the contact information on the conference webpage. Thanks!\n\n'
+    text_content += attendee.all_info()
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.send()
 
 def generic_page(request, page_title, text, template='conference/generic-text.html'):
     return render_to_response(template,
@@ -173,6 +183,8 @@ def register_attendee(request):
             
             if FORWARD_REGISTRATIONS:
                 _email_hosts_registration_info(new_attendee)
+                _email_attendee_registration_info(new_attendee)
+                
             
             return generic_page(request, 'Registration Complete', '<b>Thanks, you are now registered for %s!</b>' % c.name)
             

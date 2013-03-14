@@ -114,19 +114,19 @@ class Attendee(models.Model):
         if self.is_submitting_talk:
             info += 'Paper submission info:\n\nTitle: %s\nAbstract:\n%s\n\n' % (self.paper_title, self.paper_abstract)
             if self.is_submitted_for_best_of_competition:
-                info += 'They wish to be considered for best of competition.\n\n'
+                info += 'To be considered for best of competition.\n\n'
         else:
             info += 'Not submitting a talk.\n\n'
         if self.sex != '':
-            info += 'Sex: %s\n' % self.sex
+            info += 'Sex: %s\n\n' % self.sex
         if self.requires_housing:
-            info += 'This individual requires housing.\n'
+            info += 'Requires housing.\n\n'
         else:
-            info += 'Does not need housing.\n'
+            info += 'Does not need housing.\n\n'
         if self.dietary_restrictions != '':
-            info += 'Dietary restrictions:\n%s\n' % self.dietary_restrictions
+            info += 'Dietary restrictions:\n%s\n\n' % self.dietary_restrictions
         if self.comments != '':
-            info += 'Comments:\n%s\n' % self.comments
+            info += 'Additional comments:\n%s\n' % self.comments
         return info
 
 class Room(models.Model):
