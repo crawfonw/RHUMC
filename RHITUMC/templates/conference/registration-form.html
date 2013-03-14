@@ -11,40 +11,40 @@
 {% endcomment %}
 <form action="." method="post" enctype="multipart/form-data">
 	{% csrf_token %}
-	{{ form.non_field_errors }}
+	<font color="red">{{ form.non_field_errors }}</font>
 	
 	The following information is <strong>required</strong> for <strong>anyone</strong> who registers:<br /><br />
 	
-	{{ form.email.errors }}
+	<font color="red">{{ form.email.errors }}</font>
 	<label for="id_email"><strong>Email:</strong></label>
 	{{ form.email }}
 	<br />
-	{{ form.confirm_email.errors }}
+	<font color="red">{{ form.confirm_email.errors }}</font>
 	<label for="id_confirm_email"><strong>Comfirm Email:</strong></label>
 	{{ form.confirm_email }}
 	<br />
 	
-	{{ form.first_name.errors }}
+	<font color="red">{{ form.first_name.errors }}</font>
 	<label for="id_first_name"><strong>First Name:</strong></label>
 	{{ form.first_name }}
 	<br />
 	
-	{{ form.last_name.errors }}
+	<font color="red">{{ form.last_name.errors }}</font>
 	<label for="id_last_name"><strong>Last Name:</strong></label>
 	{{ form.last_name }}
 	<br />
 	
-	{{ form.attendee_type.errors }}
+	<font color="red">{{ form.attendee_type.errors }}</font>
 	<label for="id_attendee_type"><strong>Student/Faculty/Other:</strong></label>
 	{{ form.attendee_type }}
 	<br />
 	
-	{{ form.school.errors }}
+	<font color="red">{{ form.school.errors }}</font>
 	<label for="id_school"><strong>School:</strong></label>
 	{{ form.school }}
 	<br />
 	
-	{{ form.max_degree.errors }}
+	<font color="red">{{ form.max_degree.errors }}</font>
 	<label for="id_max_degree"><strong>Maximum Mathematics Degree Offered by your Institute:</strong></label>
 	{{ form.max_degree }}
 	<br />
@@ -52,22 +52,22 @@
 	
 	The following is required <strong>only</strong> for students wishing to speak at the conference:<br /><br />
 	
-	{{ form.is_submitting_talk.errors }}
+	<font color="red">{{ form.is_submitting_talk.errors }}</font>
 	<label for="id_is_submitting_talk"><strong>Check if you are submitting a talk:</strong></label>
 	{{ form.is_submitting_talk }}
 	<br />
 	
-	{{ form.paper_title.errors }}
+	<font color="red">{{ form.paper_title.errors }}</font>
 	<label for="id_paper_title"><strong>Title of Paper:</strong></label>
 	{{ form.paper_title }}
 	<br />
 	
-	{{ form.paper_abstract.errors }}
+	<font color="red">{{ form.paper_abstract.errors }}</font>
 	<label for="id_paper_abstract"><strong>Abstract:</strong></label><br />
 	{{ form.paper_abstract }}
 	<br />
 	
-	{{ form.is_submitted_for_best_of_competition.errors }}
+	<font color="red">{{ form.is_submitted_for_best_of_competition.errors }}</font>
 	<label for="id_is_submitted_for_best_of_competition"><strong>Do you want your talk to be submitted to best of competition?</strong></label>
 	{{ form.is_submitted_for_best_of_competition }}
 	<br />
@@ -75,36 +75,36 @@
 	
 	The following is not required, but any <strong>student</strong> who wishes to provide relevant information is welcome to do so:<br /><br />
 	
-	{{ form.sex.errors }}
+	<font color="red">{{ form.sex.errors }}</font>
 	<label for="id_sex"><strong>Sex:</strong></label>
 	{{ form.sex }}
 	<br />
 	
-	{{ form.year.errors }}
+	<font color="red">{{ form.year.errors }}</font>
 	<label for="id_year"><strong>Year in School:</strong></label>
 	{{ form.year }}
 	<br />
 	
-	{{ form.size_of_institute.errors }}
+	<font color="red">{{ form.size_of_institute.errors }}</font>
 	<label for="id_size_of_institute"><strong>Size of Your Institute:</strong></label>
 	{{ form.size_of_institute }}
 	<br />
 	<br />
 	
-	{{ form.dietary_restrictions.errors }}
+	<font color="red">{{ form.dietary_restrictions.errors }}</font>
 	<label for="id_dietary_restrictions"><strong>Please list any dietary restrictions:</strong></label><br />
 	{{ form.dietary_restrictions }}
 	<br />
 	<br />
 	
-	{{ form.requires_housing.errors }}
-	If you are an out of town <strong>student</strong> visitor and need housing supported by us, please choose <strong>yes</strong> from this menu.<br />
-	<label for="id_requires_housing"><strong>Require housing?:</strong></label>
+	<font color="red">{{ form.requires_housing.errors }}</font>
+	Our sponsors have graciously provided funds to host 40 out of town student visitors at the conference hotel. Please choose <strong>yes</strong> to indicate that you are requesting support for accommodations, otherwise, select <strong>no</strong>.<br />
+	<label for="id_requires_housing"><strong>Require housing:</strong></label><br />
 	{{ form.requires_housing }}
 	<br />
 	<br />
 	
-	{{ form.comments.errors }}
+	<font color="red">{{ form.comments.errors }}</font>
 	<label for="id_comments"><strong>Any other comments (roommate for housing, etc.):</strong></label><br />
 	{{ form.comments }}
 	<br />
