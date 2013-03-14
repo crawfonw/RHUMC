@@ -78,9 +78,6 @@ def admin_portal(request):
 def attendee_emailer(request):
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
-    c = _get_current_conference()
-    if c is None:
-        messages.add_message(request, messages.ERROR, 'You have no upcoming conference objects in the database. If you believe this is an error, please double check the Management System.')
     if request.method == 'POST':
         form = AttendeeEmailerForm(request.POST)
         if form.is_valid():
@@ -112,10 +109,6 @@ def generate_schedule(request):
     #Obj.objects.order_by('ORDERING')
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
-    c = _get_current_conference()
-    if c is None:
-        messages.add_message(request, messages.ERROR, 'No conferences scheduled.')
-    
     if request.method == 'POST':
         form = LaTeXForm(request.POST)
         if form.is_valid():
@@ -138,8 +131,6 @@ def generate_schedule(request):
                                'form': form,
                                },
                                RequestContext(request)) 
-    
-    
 
 def index(request):
     return render_to_response('conference/index.html',
@@ -205,6 +196,9 @@ def page(request, page_id):
 def program(request):
     #WIP
     #TODO: fix/update this
+    ##This can probably be removed...
+    ##I think the "Program" page was intended to be general,
+    ##not contain the actual conference program schedule
     c = _get_current_conference()
     if c is not None:
         if c.show_program:
