@@ -184,9 +184,8 @@ def register_attendee(request):
             if FORWARD_REGISTRATIONS:
                 _email_hosts_registration_info(new_attendee)
                 _email_attendee_registration_info(new_attendee)
-                
             
-            return generic_page(request, 'Registration Complete', '<b>Thanks, you are now registered for %s!</b>' % c.name)
+            return generic_page(request, 'Registration Complete', "<b>Thanks, you are now registered for the conference. A copy of your provided information has been emailed to %s for your records. Make sure to check your junk mail folder if you don't see it. We are looking forward to having you at the conference!</b>" % new_attendee.email)
             
             #messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
             #return HttpResponseRedirect(reverse('conference-index'))

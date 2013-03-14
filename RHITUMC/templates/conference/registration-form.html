@@ -89,19 +89,23 @@
 	<label for="id_size_of_institute"><strong>Size of Your Institute:</strong></label>
 	{{ form.size_of_institute }}
 	<br />
+	<br />
 	
 	{{ form.dietary_restrictions.errors }}
 	<label for="id_dietary_restrictions"><strong>Please list any dietary restrictions:</strong></label><br />
 	{{ form.dietary_restrictions }}
 	<br />
+	<br />
 	
 	{{ form.requires_housing.errors }}
-	<label for="id_requires_housing"><strong>Do you require housing?</strong></label>
+	If you are an out of town <strong>student</strong> visitor and need housing supported by us, please choose yes from this menu.<br />
+	<label for="id_requires_housing"><strong>Require housing?:</strong></label>
 	{{ form.requires_housing }}
+	<br />
 	<br />
 	
 	{{ form.comments.errors }}
-	<label for="id_comments"><strong>Any other comments:</strong></label><br />
+	<label for="id_comments"><strong>Any other comments (roommate for housing, etc.):</strong></label><br />
 	{{ form.comments }}
 	<br />
 	<br />

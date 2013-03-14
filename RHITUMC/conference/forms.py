@@ -34,7 +34,7 @@ class AttendeeForm(forms.Form):
     is_submitted_for_best_of_competition = forms.BooleanField(required=False)
     
     dietary_restrictions = forms.CharField(required=False, widget=forms.Textarea)
-    requires_housing = forms.BooleanField(required=False)
+    requires_housing = forms.BooleanField(required=False, widget=forms.Select(choices=((False, 'No'), (True, 'Yes'))))
     comments = forms.CharField(required=False, widget=forms.Textarea)
     
     def clean(self):

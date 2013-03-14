@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     
     url(r'^favicon.ico', 'conference.views.index'),
     
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    #url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls), name='admin'),
     
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name='panel-logout'),
