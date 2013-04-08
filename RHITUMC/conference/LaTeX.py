@@ -1,11 +1,12 @@
 class LaTeXFile():
     
-    def __init__(self, sessions, special_sessions, time_slots, tracks):
+    def __init__(self, sessions, special_sessions, time_slots, tracks, days):
         
         self.sessions = sessions
         self.special_sessions = special_sessions
         self.time_slots = time_slots
         self.tracks = tracks
+        self.days = days
         self.doc = '''\\documentclass{article}
 
 \\begin{document}
@@ -47,37 +48,39 @@ class LaTeXFile():
             if time_session_dict[special_session.time][1] is None:
                 time_session_dict[special_session.time][1] = special_session
         body = ''
-        for time_slot in self.time_slots:
-            body += '%s\n' % time_slot
-            if time_session_dict[time_slot][1] is not None:
-                body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
-                 (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
-                if time_session_dict[time_slot][1].short_title != '':
-                    body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
-                                                                         time_session_dict[time_slot][1].short_title)
+        for day in self.days:
+            for time_slot in self.time_slots:
+                body += '%s \\\\\n%s\n' % (time_slot, day)
+                if time_session_dict[time_slot][1] is not None:
+                    body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
+                     (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
+                    if time_session_dict[time_slot][1].short_title != '':
+                        body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
+                                                                             time_session_dict[time_slot][1].short_title)
+                    else:
+                        body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
+                elif time_session_dict[time_slot][0] is not None:
+                    temp1 = ''
+                    temp2 = ''
+                    for track in self.tracks:
+                        #Sessions will be sorted correctly based on Tracks from the view
+                        has_talk = False
+                        for session in time_session_dict[time_slot][0]:
+                            if session.track == track and session.day == day:
+                                temp1 += '& %s ' % ', '.join([str(s) for s in session.speakers.all()])
+                                temp2 += '& %s ' % session.speakers.all()[0].school
+                                has_talk = True
+                                break
+                        if not has_talk:
+                            temp1 += '& '
+                            temp2 += '& '
+                    temp1 += ' \\\\\n'
+                    temp2 += ' \\\\\n'
+                    body += temp1 + temp2
                 else:
-                    body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
-            elif time_session_dict[time_slot][0] is not None:
-                temp1 = ''
-                temp2 = ''
-                for track in self.tracks:
-                    #Sessions will be sorted correctly based on Tracks from the view
-                    has_talk = False
-                    for session in time_session_dict[time_slot][0]:
-                        if session.track == track:
-                            temp1 += '& %s ' % ', '.join([str(s) for s in session.speakers.all()])
-                            temp2 += '& %s ' % session.speakers.all()[0].school
-                            has_talk = True
-                            break
-                    if not has_talk:
-                        temp1 += '& '
-                        temp2 += '& '
-                temp1 += ' \\\\\n'
-                temp2 += ' \\\\\n'
-                body += temp1 + temp2
-            else:
-                temp = '& ' * len(self.tracks)
-                body += ('%s\\\\\n' % temp) * 2
+                    temp = '& ' * len(self.tracks)
+                    body += ('%s\\\\\n' % temp) * 2
+                body += '\\hline\n'
             body += '\\hline\n'
         body += '\\end{tabular}'
         return body

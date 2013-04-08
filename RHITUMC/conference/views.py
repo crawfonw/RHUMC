@@ -117,8 +117,9 @@ def generate_schedule(request):
             special_sessions = SpecialSession.objects.filter(day__conference=conf)
             tracks = Track.objects.filter(conference=conf)
             time_slots = TimeSlot.objects.filter(conference=conf)
+            days = Day.objects.filter(conference=conf)
             
-            l = LaTeXFile(sessions, special_sessions, time_slots, tracks)
+            l = LaTeXFile(sessions, special_sessions, time_slots, tracks, days)
     
             response = HttpResponse(l.generate_program(), content_type='application/x-latex')
             response['Content-Disposition'] = 'attachment; filename="program.tex"'
