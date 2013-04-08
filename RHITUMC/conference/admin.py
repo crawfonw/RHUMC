@@ -2,6 +2,14 @@ from django.contrib import admin
 
 from models import Attendee, Conference, Contactee, Page, Room, Track, Day, TimeSlot, Session, SpecialSession
 
+def pair_for_housing(modeladmin, request, queryset):
+    queryset.update(has_been_paired_for_housing=True)
+pair_for_housing.short_description = 'Pair for Housing'
+
+def unpair_for_housing(modeladmin, request, queryset):
+    queryset.update(has_been_paired_for_housing=False)
+unpair_for_housing.short_description = 'Unpair for Housing'
+
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
     list_per_page = 50
@@ -22,13 +30,14 @@ class AttendeeAdmin(FengShuiAdmin):
                                         }),
                   ('Miscellaneous', {
                                      'classes': ('collapse',),
-                                     'fields': ('dietary_restrictions', 'requires_housing', 'comments',),
+                                     'fields': ('dietary_restrictions', 'requires_housing', 'has_been_paired_for_housing', 'comments',),
                                      })
                   
                   )
     list_display = ('__unicode__', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
     list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
     search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
+    actions = (pair_for_housing, unpair_for_housing,)
 
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
