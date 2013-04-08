@@ -104,15 +104,7 @@ class LaTeXFile():
 
     def build_student_talks(self):
         body = ''
-        
-        d = {}
-        l = []
-        for a in self.sessions:
-            d[a] = a.speakers.all().order_by('last_name')[0].last_name
-        for k, v in sorted(d.items(), key=lambda x: x[1]):
-            l.append(k)
-        
-        for session in l:
+        for session in self.sessions:
             body += self.build_single_talk(session)
         return body
     
