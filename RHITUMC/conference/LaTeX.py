@@ -9,7 +9,7 @@ def _timeslot_on_day_has_talks(time_slot_talks, day):
                 return True
     return False
 
-class LaTeXFile():
+class LaTeXProgram():
     
     def __init__(self, opts, sessions, special_sessions, time_slots, tracks, days):
         
@@ -145,7 +145,55 @@ class LaTeXFile():
         body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0].paper_abstract
         return body
         
+class LaTeXBadges():
+    
+    def __init__(self, opts, attendees):
         
+        self.opts = opts
+        self.attendees = attendees
         
+        self.doc = '''%%Based on http://psy.swan.ac.uk/staff/carter/unix/latex_badges.htm
+\\documentclass[12pt]{article}
+\\usepackage{fullpage}
+\\usepackage{filecontents}
+\\usepackage{csvtools}
+\\usepackage{fix-cm}
+
+\\pagestyle{empty}
+
+\\setlength{\\oddsidemargin}{-12mm}
+
+\\begin{filecontents*}{names.csv}
+Name, Affiliation
+%s
+\\end{filecontents*}
+\\begin{document}
+
+\\applyCSVfile{names.csv}{%%
+    \\noindent
+        \\fbox{\\begin{minipage}[t][55mm]{90mm}
+            \\vspace{15mm}
+
+            \\sffamily \\centering
+                \\fontsize{30}{36}\\selectfont\\insertName
+                \\LARGE \\vspace{10mm}
+
+                \\itshape\\insertAffiliation
+
+            \\end{minipage}}
+        \\hspace{2mm}
+        \\vspace{2mm}
+}
+
+\\end{document}
+'''
+    def generate_badges(self):
+        return self.doc % self.aggregate_names()
+    
+    def aggregate_names(self):
+        names = ''
+        for attendee in self.attendees:
+            names += '%s %s, %s\n' % (attendee.first_name, attendee.last_name, attendee.school)
+        return names
         
         

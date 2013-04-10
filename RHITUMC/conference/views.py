@@ -20,10 +20,10 @@ from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
 from datetime import datetime
 
-from forms import AttendeeEmailerForm, AttendeeForm, LaTeXForm
+from forms import AttendeeEmailerForm, AttendeeForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
-from LaTeX import LaTeXFile
+from LaTeX import LaTeXBadges, LaTeXProgram
 
 FORWARD_REGISTRATIONS = True
 
@@ -110,7 +110,7 @@ def generate_schedule(request):
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
     if request.method == 'POST':
-        form = LaTeXForm(request.POST)
+        form = LaTeXProgramForm(request.POST)
         if form.is_valid():
             conf = form.cleaned_data['conference']
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
@@ -121,19 +121,43 @@ def generate_schedule(request):
             time_slots = TimeSlot.objects.filter(conference=conf)
             days = Day.objects.filter(conference=conf)
             
-            l = LaTeXFile(opts, sessions, special_sessions, time_slots, tracks, days)
+            l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days)
     
             response = HttpResponse(l.generate_program(), content_type='application/x-latex')
             response['Content-Disposition'] = 'attachment; filename="program.tex"'
             return response
     else:
-        form = LaTeXForm()
+        form = LaTeXProgramForm()
         
     return render_to_response('conference/program-gen.html',
                               {'page_title': 'Generate LaTeX Program',
                                'form': form,
                                },
                                RequestContext(request)) 
+@login_required
+def generate_badges(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    if request.method == 'POST':
+        form = LaTeXProgramForm(request.POST)
+        if form.is_valid():
+            conf = form.cleaned_data['conference']
+            opts = dict()
+            attendees = Attendee.objects.filter(conference=conf)
+            
+            l = LaTeXBadges(opts, attendees)
+    
+            response = HttpResponse(l.generate_badges(), content_type='application/x-latex')
+            response['Content-Disposition'] = 'attachment; filename="badges.tex"'
+            return response
+    else:
+        form = LaTeXProgramForm()
+        
+    return render_to_response('conference/badges-gen.html',
+                              {'page_title': 'Generate LaTeX Badges',
+                               'form': form,
+                               },
+                               RequestContext(request))
 
 def index(request):
     return render_to_response('conference/index.html',

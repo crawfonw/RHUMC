@@ -72,8 +72,11 @@ class AttendeeEmailerForm(forms.Form):
     email_subject = forms.CharField(max_length=100)
     email_body = forms.CharField(widget=forms.Textarea)
     
-class LaTeXForm(forms.Form):
+class LaTeXProgramForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
     display_titles = forms.BooleanField(required=False, initial=True)
     display_schools = forms.BooleanField(required=False)
+
+class LaTeXBadgesForm(forms.Form):
+    conference = forms.ModelChoiceField(queryset = Conference.objects.all())
     
