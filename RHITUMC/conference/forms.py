@@ -74,4 +74,6 @@ class AttendeeEmailerForm(forms.Form):
     
 class LaTeXForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    display_titles = forms.BooleanField(required=False, initial=True)
+    display_schools = forms.BooleanField(required=False)
     

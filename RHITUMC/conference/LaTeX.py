@@ -1,7 +1,19 @@
+def _timeslot_on_day_has_talks(time_slot_talks, day):
+    if time_slot_talks[0] is not None:
+        for talk in time_slot_talks[0]:
+            if talk.day == day:
+                return True
+    if time_slot_talks[1] is not None:
+        for talk in time_slot_talks[1]:
+            if talk.day == day:
+                return True
+    return False
+
 class LaTeXFile():
     
-    def __init__(self, sessions, special_sessions, time_slots, tracks, days):
+    def __init__(self, opts, sessions, special_sessions, time_slots, tracks, days):
         
+        self.opts = opts
         self.sessions = sessions
         self.special_sessions = special_sessions
         self.time_slots = time_slots
@@ -50,37 +62,47 @@ class LaTeXFile():
         body = ''
         for day in self.days:
             for time_slot in self.time_slots:
-                body += '%s \\\\\n%s\n' % (time_slot, day)
-                if time_session_dict[time_slot][1] is not None:
-                    body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
-                     (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
-                    if time_session_dict[time_slot][1].short_title != '':
-                        body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
-                                                                             time_session_dict[time_slot][1].short_title)
+                if _timeslot_on_day_has_talks(time_session_dict[time_slot], day):
+                    body += '%s %s \\\\\n%s\n' % (time_slot, '& ' * len(self.tracks), day)
+                    if time_session_dict[time_slot][1] is not None:
+                        body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
+                         (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
+                        if time_session_dict[time_slot][1].short_title != '':
+                            body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker,\
+                                                                                 time_session_dict[time_slot][1].short_title)
+                        else:
+                            body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
+                    elif time_session_dict[time_slot][0] is not None:
+                        temp1 = ''
+                        temp2 = ''
+                        temp3 = ''
+                        for track in self.tracks:
+                            #Sessions will be sorted correctly based on Tracks from the view
+                            has_talk = False
+                            for session in time_session_dict[time_slot][0]:
+                                if session.track == track and session.day == day:
+                                    temp1 += '& \\parbox{4cm}{\\centering %s}' % ';\n'.join([str(s) for s in session.speakers.all()])
+                                    temp2 += '& \\parbox{4cm}{\\centering %s} ' % session.speakers.all()[0].school
+                                    temp3 += '& \\parbox{4cm}{\\centering %s} ' % session.speakers.all()[0].paper_title
+                                    has_talk = True
+                                    break
+                            if not has_talk:
+                                temp1 += '& '
+                                temp2 += '& '
+                                temp3 += '& '
+                        temp1 += ' \\\\\n'
+                        temp2 += ' \\\\\n'
+                        temp3 += ' \\\\\n'
+                        
+                        body += temp1
+                        if self.opts['display_schools']:
+                            body += temp2
+                        if self.opts['display_titles']:
+                            body += temp3
                     else:
-                        body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
-                elif time_session_dict[time_slot][0] is not None:
-                    temp1 = ''
-                    temp2 = ''
-                    for track in self.tracks:
-                        #Sessions will be sorted correctly based on Tracks from the view
-                        has_talk = False
-                        for session in time_session_dict[time_slot][0]:
-                            if session.track == track and session.day == day:
-                                temp1 += '& %s ' % ', '.join([str(s) for s in session.speakers.all()])
-                                temp2 += '& %s ' % session.speakers.all()[0].school
-                                has_talk = True
-                                break
-                        if not has_talk:
-                            temp1 += '& '
-                            temp2 += '& '
-                    temp1 += ' \\\\\n'
-                    temp2 += ' \\\\\n'
-                    body += temp1 + temp2
-                else:
-                    temp = '& ' * len(self.tracks)
-                    body += ('%s\\\\\n' % temp) * 2
-                body += '\\hline\n'
+                        temp = '& ' * len(self.tracks)
+                        body += ('%s\\\\\n' % temp) * 2
+                    body += '\\hline\n'
             body += '\\hline\n'
         body += '\\end{tabular}'
         return body

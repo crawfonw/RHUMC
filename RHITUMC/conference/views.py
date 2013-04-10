@@ -113,13 +113,15 @@ def generate_schedule(request):
         form = LaTeXForm(request.POST)
         if form.is_valid():
             conf = form.cleaned_data['conference']
+            opts = dict({('display_titles', form.cleaned_data['display_titles']), \
+                         ('display_schools', form.cleaned_data['display_schools'])})
             sessions = Session.objects.filter(day__conference=conf)
             special_sessions = SpecialSession.objects.filter(day__conference=conf)
             tracks = Track.objects.filter(conference=conf)
             time_slots = TimeSlot.objects.filter(conference=conf)
             days = Day.objects.filter(conference=conf)
             
-            l = LaTeXFile(sessions, special_sessions, time_slots, tracks, days)
+            l = LaTeXFile(opts, sessions, special_sessions, time_slots, tracks, days)
     
             response = HttpResponse(l.generate_program(), content_type='application/x-latex')
             response['Content-Disposition'] = 'attachment; filename="program.tex"'
