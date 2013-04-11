@@ -14,6 +14,11 @@
 	{{ form.conference }}
 	<br />
 	
+	{{ form.squish.errors }}
+	<label for="id_squish"><strong>For text that is too long, to what size should it be constrained? (cm)</strong></label>
+	{{ form.squish }}
+	<br />
+	
 	{{ form.display_titles.errors }}
 	<label for="id_display_titles"><strong>Display Paper Titles:</strong></label>
 	{{ form.display_titles }}

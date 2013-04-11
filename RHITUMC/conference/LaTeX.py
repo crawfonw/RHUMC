@@ -20,6 +20,9 @@ class LaTeXProgram():
         self.tracks = tracks
         self.days = days
         self.doc = '''\\documentclass{article}
+\\usepackage{longtable}
+
+\\def \\squish{%scm}
 
 \\begin{document}
 
@@ -43,7 +46,7 @@ class LaTeXProgram():
 '''
 
     def generate_program(self):
-        return self.doc % (self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
+        return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
 
     def build_table_of_contents(self):
         return self.build_header() + self.build_body()
@@ -63,8 +66,9 @@ class LaTeXProgram():
         for day in self.days:
             for time_slot in self.time_slots:
                 if _timeslot_on_day_has_talks(time_session_dict[time_slot], day):
-                    body += '%s %s \\\\\n%s\n' % (time_slot, '& ' * len(self.tracks), day)
-                    if time_session_dict[time_slot][1] is not None:
+                    #body += '\multicolumn{1}{c||}{%s} \\\\\n \multicolumn{1}{c||}{%s} \\\\\n' % (time_slot, day)
+                    if time_session_dict[time_slot][1] is not None and time_session_dict[time_slot][1].day == day:
+                        body += '%s & \multicolumn{%s}{c|}{} \\\\\n%s\n' % (time_slot, len(self.tracks), day)
                         body += '& \\multicolumn{%s}{c|}{%s, %s} \\\\ \n' % \
                          (len(self.tracks), time_session_dict[time_slot][1].room, time_session_dict[time_slot][1].short_description)
                         if time_session_dict[time_slot][1].short_title != '':
@@ -72,7 +76,9 @@ class LaTeXProgram():
                                                                                  time_session_dict[time_slot][1].short_title)
                         else:
                             body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
+                        body += '& \\multicolumn{%s}{c|}{} \\\\\n' % len(self.tracks)
                     elif time_session_dict[time_slot][0] is not None:
+                        body += '%s %s \\\\\n%s\n' % (time_slot, '& ' * len(self.tracks), day)
                         temp1 = ''
                         temp2 = ''
                         temp3 = ''
@@ -81,9 +87,19 @@ class LaTeXProgram():
                             has_talk = False
                             for session in time_session_dict[time_slot][0]:
                                 if session.track == track and session.day == day:
-                                    temp1 += '& \\parbox{4cm}{\\centering %s}' % ';\n'.join([str(s) for s in session.speakers.all()])
-                                    temp2 += '& \\parbox{4cm}{\\centering %s} ' % session.speakers.all()[0].school
-                                    temp3 += '& \\parbox{4cm}{\\centering %s} ' % session.speakers.all()[0].paper_title
+                                    name = '; '.join([str(s) for s in session.speakers.all()])
+                                    if len(name) > 20:
+                                        temp1 += '& \\parbox{\\squish}{\\centering %s} ' % name 
+                                    else:
+                                        temp1 += '& %s ' % name
+                                    if len(session.speakers.all()[0].school) > 20:
+                                        temp2 += '& \\parbox{\\squish}{\\centering %s} ' % session.speakers.all()[0].school
+                                    else:
+                                        temp2 += '& %s ' % session.speakers.all()[0].school
+                                    if len(session.speakers.all()[0].paper_title) > 20:
+                                        temp3 += '& \\parbox{\\squish}{\\centering %s} ' % session.speakers.all()[0].paper_title
+                                    else:
+                                        temp3 += '& %s ' % session.speakers.all()[0].paper_title
                                     has_talk = True
                                     break
                             if not has_talk:
@@ -99,16 +115,17 @@ class LaTeXProgram():
                             body += temp2
                         if self.opts['display_titles']:
                             body += temp3
+                        body += '%s \\\\\n' % ('& ' * len(self.tracks))
                     else:
                         temp = '& ' * len(self.tracks)
                         body += ('%s\\\\\n' % temp) * 2
                     body += '\\hline\n'
             body += '\\hline\n'
-        body += '\\end{tabular}'
+        body += '\\end{longtable}'
         return body
         
     def build_header(self):
-        header1 = '\\begin{tabular}{c||%s}\n' % ('c|' * len(self.tracks))
+        header1 = '\\begin{longtable}{c||%s}\n' % ('c|' * len(self.tracks))
         header2 = ''
         for track in self.tracks:
             header1 += '& \\multicolumn{1}{c|}{\\bf %s}\n' % track.name
@@ -137,7 +154,7 @@ class LaTeXProgram():
         speakers = talk.speakers.all()
         body = '\\noindent{\\bf '
         for speaker in speakers:
-            body += '%s-%s, ' % (str(speaker), speaker.school)
+            body += '%s, %s; ' % (str(speaker), speaker.school)
         body = body[:-2]
         body += ' \\\\\n'
         body += '%s \\\\\n' % speakers[0].paper_title
@@ -169,7 +186,7 @@ Name, Affiliation
 \\end{filecontents*}
 \\begin{document}
 
-\\applyCSVfile{names.csv}{%%
+\\applyCSVfile{badgenames.csv}{%%
     \\noindent
         \\fbox{\\begin{minipage}[t][%smm]{%smm}
             \\vspace{15mm}

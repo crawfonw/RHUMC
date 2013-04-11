@@ -114,7 +114,8 @@ def generate_schedule(request):
         if form.is_valid():
             conf = form.cleaned_data['conference']
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
-                         ('display_schools', form.cleaned_data['display_schools'])})
+                         ('display_schools', form.cleaned_data['display_schools']), \
+                         ('squish', form.cleaned_data['squish'])})
             sessions = Session.objects.filter(day__conference=conf)
             special_sessions = SpecialSession.objects.filter(day__conference=conf)
             tracks = Track.objects.filter(conference=conf)
