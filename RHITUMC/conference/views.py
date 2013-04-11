@@ -20,7 +20,7 @@ from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
 from datetime import datetime
 
-from forms import AttendeeEmailerForm, AttendeeForm, LaTeXProgramForm
+from forms import AttendeeEmailerForm, AttendeeForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
@@ -139,10 +139,12 @@ def generate_badges(request):
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
     if request.method == 'POST':
-        form = LaTeXProgramForm(request.POST)
+        form = LaTeXBadgesForm(request.POST)
         if form.is_valid():
             conf = form.cleaned_data['conference']
-            opts = dict()
+            width = form.cleaned_data['width']
+            height = form.cleaned_data['height']
+            opts = dict({('width', width), ('height', height)})
             attendees = Attendee.objects.filter(conference=conf)
             
             l = LaTeXBadges(opts, attendees)
@@ -151,7 +153,7 @@ def generate_badges(request):
             response['Content-Disposition'] = 'attachment; filename="badges.tex"'
             return response
     else:
-        form = LaTeXProgramForm()
+        form = LaTeXBadgesForm()
         
     return render_to_response('conference/badges-gen.html',
                               {'page_title': 'Generate LaTeX Badges',

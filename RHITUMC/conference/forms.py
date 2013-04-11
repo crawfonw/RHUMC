@@ -79,4 +79,6 @@ class LaTeXProgramForm(forms.Form):
 
 class LaTeXBadgesForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    width = forms.IntegerField(initial=55, required=True)
+    height = forms.IntegerField(initial=90, required=True)
     

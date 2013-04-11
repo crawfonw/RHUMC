@@ -171,7 +171,7 @@ Name, Affiliation
 
 \\applyCSVfile{names.csv}{%%
     \\noindent
-        \\fbox{\\begin{minipage}[t][55mm]{90mm}
+        \\fbox{\\begin{minipage}[t][%smm]{%smm}
             \\vspace{15mm}
 
             \\sffamily \\centering
@@ -188,12 +188,15 @@ Name, Affiliation
 \\end{document}
 '''
     def generate_badges(self):
-        return self.doc % self.aggregate_names()
+        return self.doc % (self.aggregate_names(), self.opts['width'], self.opts['height'])
     
     def aggregate_names(self):
         names = ''
         for attendee in self.attendees:
             names += '%s %s, %s\n' % (attendee.first_name, attendee.last_name, attendee.school)
         return names
+    
+    def get_badge_dimensions(self):
+        return 
         
         

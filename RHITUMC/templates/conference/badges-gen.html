@@ -12,6 +12,16 @@
 	{{ form.conference }}
 	<br />
 	
+	{{ form.width.errors }}
+	<label for="id_width"><strong>Badge Width (mm):</strong></label>
+	{{ form.width }}
+	<br />
+	
+	{{ form.height.errors }}
+	<label for="id_height"><strong>Badge Height (mm):</strong></label>
+	{{ form.height }}
+	<br />
+	
 	<input type="submit" value="Submit">
 </form>
 
