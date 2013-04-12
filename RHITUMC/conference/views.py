@@ -71,6 +71,7 @@ def admin_portal(request):
         return HttpResponseRedirect(reverse('conference-index'))
     return render_to_response('conference/admin-portal.html',
                               {'page_title': 'Administrative Portal',
+                               'atportal': True,
                                },
                                RequestContext(request))
 
