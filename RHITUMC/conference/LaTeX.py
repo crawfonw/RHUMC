@@ -87,8 +87,8 @@ class LaTeXProgram():
                             has_talk = False
                             for session in time_session_dict[time_slot][0]:
                                 if session.track == track and session.day == day:
-                                    name = '; '.join([str(s) for s in session.speakers.all()])
-                                    if len(name) > 20:
+                                    name = '\\\\ '.join([str(s) for s in session.speakers.all()])
+                                    if len(name) > 20 or session.speakers.all().count() > 1:
                                         temp1 += '& \\parbox{\\squish}{\\centering %s} ' % name 
                                     else:
                                         temp1 += '& %s ' % name
@@ -180,7 +180,7 @@ class LaTeXBadges():
 
 \\setlength{\\oddsidemargin}{-12mm}
 
-\\begin{filecontents*}{names.csv}
+\\begin{filecontents*}{badgenames.csv}
 Name, Affiliation
 %s
 \\end{filecontents*}
@@ -212,8 +212,5 @@ Name, Affiliation
         for attendee in self.attendees:
             names += '%s %s, %s\n' % (attendee.first_name, attendee.last_name, attendee.school)
         return names
-    
-    def get_badge_dimensions(self):
-        return 
         
         
