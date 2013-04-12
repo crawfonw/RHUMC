@@ -1,10 +1,8 @@
 def _timeslot_on_day_has_talks(time_slot_talks, day):
+    if time_slot_talks[1] is not None and time_slot_talks[1].day == day:
+        return True
     if time_slot_talks[0] is not None:
         for talk in time_slot_talks[0]:
-            if talk.day == day:
-                return True
-    if time_slot_talks[1] is not None:
-        for talk in time_slot_talks[1]:
             if talk.day == day:
                 return True
     return False
@@ -23,6 +21,7 @@ class LaTeXProgram():
 \\usepackage{longtable}
 
 \\def \\squish{%scm}
+\\def \\datesquish{3.5cm}
 
 \\begin{document}
 
@@ -78,7 +77,7 @@ class LaTeXProgram():
                             body += '& \\multicolumn{%s}{c|}{%s} \\\\\n' % (len(self.tracks), time_session_dict[time_slot][1].speaker)
                         body += '& \\multicolumn{%s}{c|}{} \\\\\n' % len(self.tracks)
                     elif time_session_dict[time_slot][0] is not None:
-                        body += '%s %s \\\\\n%s\n' % (time_slot, '& ' * len(self.tracks), day)
+                        body += '\\parbox[t]{\\datesquish}{%s \\\\\n%s}\n' % (time_slot, day)
                         temp1 = ''
                         temp2 = ''
                         temp3 = ''
@@ -89,15 +88,15 @@ class LaTeXProgram():
                                 if session.track == track and session.day == day:
                                     name = '\\\\ '.join([str(s) for s in session.speakers.all()])
                                     if len(name) > 20 or session.speakers.all().count() > 1:
-                                        temp1 += '& \\parbox{\\squish}{\\centering %s} ' % name 
+                                        temp1 += '& \\parbox[t]{\\squish}{\\centering %s} ' % name 
                                     else:
                                         temp1 += '& %s ' % name
                                     if len(session.speakers.all()[0].school) > 20:
-                                        temp2 += '& \\parbox{\\squish}{\\centering %s} ' % session.speakers.all()[0].school
+                                        temp2 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session.speakers.all()[0].school
                                     else:
                                         temp2 += '& %s ' % session.speakers.all()[0].school
                                     if len(session.speakers.all()[0].paper_title) > 20:
-                                        temp3 += '& \\parbox{\\squish}{\\centering %s} ' % session.speakers.all()[0].paper_title
+                                        temp3 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session.speakers.all()[0].paper_title
                                     else:
                                         temp3 += '& %s ' % session.speakers.all()[0].paper_title
                                     has_talk = True
