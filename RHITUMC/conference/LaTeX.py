@@ -21,7 +21,7 @@ class LaTeXProgram():
 \\usepackage{longtable}
 
 \\def \\squish{%scm}
-\\def \\datesquish{3.5cm}
+\\def \\datesquish{3.6cm}
 
 \\begin{document}
 
