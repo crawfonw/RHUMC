@@ -20,7 +20,7 @@ from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
 from datetime import datetime
 
-from forms import AttendeeEmailerForm, AttendeeForm, LaTeXBadgesForm, LaTeXProgramForm
+from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
@@ -163,6 +163,37 @@ def generate_badges(request):
                                },
                                RequestContext(request))
 
+@login_required
+def batch_update(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    if request.method == 'POST':
+        form = BatchUpdateForm(request.POST)
+        if form.is_valid():
+            selection = form.cleaned_data['selection']
+            replace = form.cleaned_data['replace']
+            
+            attendees_to_update = Attendee.objects.filter(school=selection)
+            for attendee in attendees_to_update:
+                attendee.school = replace
+                attendee.save()
+            messages.add_message(request, messages.SUCCESS, 'All instances of "%s" have been replaced with "%s".' % (selection, replace))
+            return HttpResponseRedirect(reverse('batch-updater'))
+    else:
+        schools = []
+        school_tuples = []
+        for s in Attendee.objects.all().values('school'):
+            if s['school'] not in schools:
+                schools.append(s['school'])
+                school_tuples.append((s['school'], s['school']))
+        form = BatchUpdateForm(initial={'selection': school_tuples})
+        
+    return render_to_response('conference/batch-updater.html',
+                              {'page_title': 'Batch Updater',
+                               'form': form,
+                               },
+                               RequestContext(request))
+
 def index(request):
     return render_to_response('conference/index.html',
                               {'page_title': 'Rose-Hulman Undergraduate Math Conference',
@@ -208,10 +239,6 @@ def register_attendee(request):
                 _email_attendee_registration_info(new_attendee)
             
             return generic_page(request, 'Registration Complete', "<b>Thanks, you are now registered for the conference. A copy of your provided information has been emailed to %s for your records. Make sure to check your junk mail folder if you don't see it. We are looking forward to having you at the conference!</b>" % new_attendee.email)
-            
-            #messages.add_message(request, messages.SUCCESS, '<b>Thanks, you are now registered for the %s conference!</b>' % c.format_date())
-            #return HttpResponseRedirect(reverse('conference-index'))
-            
     else:
         form = AttendeeForm()
     return render_to_response('conference/registration-form.html',
@@ -225,11 +252,7 @@ def page(request, page_id):
     return generic_page(request, p.title, p.page_text)
 
 def program(request):
-    #WIP
-    #TODO: fix/update this
-    ##This can probably be removed...
-    ##I think the "Program" page was intended to be general,
-    ##not contain the actual conference program schedule
+    #WIP, probably broken right now
     c = _get_current_conference()
     if c is not None:
         if c.show_program:

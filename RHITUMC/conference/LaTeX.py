@@ -157,7 +157,7 @@ class LaTeXProgram():
             body += '%s, %s; ' % (str(speaker), speaker.school)
         body = body[:-2]
         body += ' \\\\\n'
-        body += 'Chair: %s %s in %s\n\\\\\n%s \\\\\n' % (talk.day, talk.time, talk.track.room, talk.chair)
+        body += '%s %s in %s\n\\\\\nChair: %s \\\\\n' % (talk.day, talk.time, talk.track.room, talk.chair)
         body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0].paper_abstract
         return body
         

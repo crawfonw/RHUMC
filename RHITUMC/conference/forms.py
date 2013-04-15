@@ -83,3 +83,8 @@ class LaTeXBadgesForm(forms.Form):
     width = forms.IntegerField(initial=55, required=True)
     height = forms.IntegerField(initial=90, required=True)
     
+class BatchUpdateForm(forms.Form):
+    selection = forms.ChoiceField(choices = (), label='School String to Replace')
+    replace = forms.CharField(max_length=100, label='New String')
+    
+    
