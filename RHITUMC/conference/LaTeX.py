@@ -152,12 +152,12 @@ class LaTeXProgram():
     def build_single_talk(self, talk):
         speakers = talk.speakers.all()
         body = '\\noindent{\\bf '
+        body += '%s}\\\\\n' % speakers[0].paper_title
         for speaker in speakers:
             body += '%s, %s; ' % (str(speaker), speaker.school)
         body = body[:-2]
         body += ' \\\\\n'
-        body += '%s \\\\\n' % speakers[0].paper_title
-        body += '%s %s in %s}\n\n' % (talk.day, talk.time, talk.track.room)
+        body += 'Chair: %s %s in %s\n\\\\\n%s \\\\\n' % (talk.day, talk.time, talk.track.room, talk.chair)
         body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0].paper_abstract
         return body
         

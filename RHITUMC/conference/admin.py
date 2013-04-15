@@ -58,7 +58,7 @@ class ConferenceAdmin(FengShuiAdmin):
     
 class SessionAdmin(FengShuiAdmin):
     filter_horizontal = ('speakers',)
-    list_display = ('day', 'time', 'chair',)
+    list_display = ('day', 'time', 'track', 'chair',)
     
 #class SpecialSessionAdmin(FengShuiAdmin):
     
