@@ -84,7 +84,20 @@ class LaTeXBadgesForm(forms.Form):
     height = forms.IntegerField(initial=90, required=True)
     
 class BatchUpdateForm(forms.Form):
-    selection = forms.ChoiceField(choices = (), label='School String to Replace')
-    replace = forms.CharField(max_length=100, label='New String')
+    def __init__(self, *args, **kwargs):
+        super(BatchUpdateForm, self).__init__(*args, **kwargs)
+        
+        schools = []
+        school_tuples = []
+        for s in Attendee.objects.all().values('school'):
+            if s['school'] not in schools:
+                schools.append(s['school'])
+                school_tuples.append((s['school'], s['school']))
+        
+        self.fields['selection'] = forms.ChoiceField(
+            choices=school_tuples, label='School String to Replace')
+        self.fields['replace'] = forms.CharField(max_length=100, label='New String')
+    #selection = forms.ChoiceField(choices = school_tuples, label='School String to Replace')
+    #replace = forms.CharField(max_length=100, label='New String')
     
     

@@ -205,6 +205,9 @@ def register_attendee(request):
     if c is None:
         text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
         return generic_page(request, 'Registration', text)
+    elif not c.registration_open:
+        text = 'We are sorry, but registration has closed for this conference.'
+        return generic_page(request, 'Registration', text)
     if request.method == 'POST':
         form = AttendeeForm(request.POST)
         if form.is_valid():
