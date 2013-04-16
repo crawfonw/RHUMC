@@ -54,7 +54,9 @@ class AttendeeForm(forms.Form):
             self._errors['confirm_email'] = self.error_class([msg])
             del self.cleaned_data['email']
             #del self.cleaned_data['confirm_email']
-        if self.cleaned_data.get('is_submitting_talk'):
+        if self.cleaned_data.get('is_submitting_talk') or self.cleaned_data.get('paper_title') != '' or self.cleaned_data.get('paper_abstract') != '':
+            if not self.cleaned_data.get('is_submitting_talk'):
+                self._errors['is_submitting_talk'] = self.error_class([u"Make sure to check this if you are submitting a talk!"])
             if self.cleaned_data.get('paper_title') == '':
                 self._errors['paper_title'] = self.error_class([u"You must provide your paper's title if you are submitting a talk."])
             if self.cleaned_data.get('paper_abstract') == '':
