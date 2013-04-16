@@ -70,7 +70,7 @@ def admin_portal(request):
     if not (request.user.is_staff or request.user.is_superuser): 
         return HttpResponseRedirect(reverse('conference-index'))
     return render_to_response('conference/admin-portal.html',
-                              {'page_title': 'Administrative Portal',
+                              {'title': 'Administrative Portal',
                                'atportal': True,
                                },
                                RequestContext(request))
@@ -99,7 +99,7 @@ def attendee_emailer(request):
         form = AttendeeEmailerForm()
     
     return render_to_response('conference/admin-attendee-emailer.html',
-                              {'page_title': 'Email Attendees',
+                              {'title': 'Email Attendees',
                                'form': form,
                                },
                                RequestContext(request)) 
@@ -132,7 +132,7 @@ def generate_schedule(request):
         form = LaTeXProgramForm()
         
     return render_to_response('conference/program-gen.html',
-                              {'page_title': 'Generate LaTeX Program',
+                              {'title': 'Generate LaTeX Program',
                                'form': form,
                                },
                                RequestContext(request)) 
@@ -158,7 +158,7 @@ def generate_badges(request):
         form = LaTeXBadgesForm()
         
     return render_to_response('conference/badges-gen.html',
-                              {'page_title': 'Generate LaTeX Badges',
+                              {'title': 'Generate LaTeX Badges',
                                'form': form,
                                },
                                RequestContext(request))
@@ -189,7 +189,7 @@ def batch_update(request):
         form = BatchUpdateForm(initial={'selection': school_tuples})
         
     return render_to_response('conference/batch-updater.html',
-                              {'page_title': 'Batch Updater',
+                              {'title': 'Batch Updater',
                                'form': form,
                                },
                                RequestContext(request))
