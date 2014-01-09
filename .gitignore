@@ -12,3 +12,5 @@ RHITUMC/RHITUMC/wsgi.py
 .project
 
 .pydevproject
+
+.settings/*
