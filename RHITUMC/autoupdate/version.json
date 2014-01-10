@@ -9,5 +9,6 @@
         "name": "Nick Crawford",
         "email": "crawfonw@gmail.com"
     },
-    "version": 1
+    "version": 1,
+    "remote_version": "https://github.com/crawfonw/RHUMC"
 }

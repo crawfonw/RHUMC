@@ -7,6 +7,9 @@ Created on Jan 10, 2014
 import json
 import os
 
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+
 def get_version_json_from_file(f):
     json_file = os.getcwd() + os.path.sep + f + os.path.sep + 'version.json'
     version = {}
@@ -19,6 +22,7 @@ def get_version_json_from_file(f):
         version['version'] = None
         version['info'] = None
         version['author'] = None
+        version['remote_version'] = None
         return version
     
     try:
@@ -30,6 +34,7 @@ def get_version_json_from_file(f):
         version['version'] = None
         version['info'] = None
         version['author'] = None
+        version['remote_version'] = None
         return version
     
     json_data.close()
@@ -62,5 +67,17 @@ def clean_version_json_data(data):
             data['author'] = None
     except KeyError:
         data['author'] = None
+        
+    try:
+        data['remote_version']
+        try:
+            URLValidator(data['remote_version'])
+        except ValidationError, e:
+            print e
+            data['remote_version'] = None
+    except KeyError:
+        print 'Remote versioning url missing.'
+        data['remote_version'] = None
+            
         
     return data
