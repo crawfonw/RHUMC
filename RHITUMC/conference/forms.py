@@ -1,6 +1,5 @@
 from django import forms
 from conference.models import Attendee, Conference, Contactee
-from django.forms import ModelForm
 from django.forms.forms import NON_FIELD_ERRORS
 
 from django.utils.safestring import mark_safe
