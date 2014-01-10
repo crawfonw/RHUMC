@@ -1,20 +1,10 @@
-# TODO: Clean up imports
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.humanize.templatetags.humanize import apnumber
-from django.contrib.sites.models import Site
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.template.defaultfilters import date, time
-from django.template.loader import render_to_string
-from django.middleware import csrf
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.core.files.base import ContentFile 
-from django.db.models import Q
 
 from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
@@ -237,7 +227,7 @@ def register_attendee(request):
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
                                     max_degree=f_max_degree,)
             
-            if FORWARD_REGISTRATIONS:
+            if FORWARD_REGISTRATIONS and not settings.DEBUG:
                 _email_hosts_registration_info(new_attendee)
                 _email_attendee_registration_info(new_attendee)
             
