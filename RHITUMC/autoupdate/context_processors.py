@@ -9,8 +9,6 @@ import importlib
 from utils import get_all_modules
 
 def autoupdate_cp(request):
-    print dir(request)
-    print request.get_full_path()
     if request.method == 'GET' and 'admin' in request.get_full_path():
         for module_str in get_all_modules():
             try:
