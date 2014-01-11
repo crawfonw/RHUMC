@@ -22,36 +22,47 @@
 
 import json
 import os
+import urllib2
 
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
-def get_version_json_from_file(f):
-    json_file = os.getcwd() + os.path.sep + f + os.path.sep + 'version.json'
+EMPTY_VERSION = {'app': None, 'version': None, 'info': None, 'author': None,
+                 'remote_version': None}
+
+def get_version_json_from_url(url):
+    response = None
+    try:
+        response = urllib2.urlopen(url, timeout=1)
+    except:
+        #TODO: Make more robust later
+        #Though we _really_ don't care how it failed
+        print 'Error opening URL: ', url
+        return EMPTY_VERSION
+        
+    try:
+        remote_version = json.load(response)
+        return remote_version
+    except ValueError:
+        print 'Remote versioning file for %s contains errors.' % url
+        return EMPTY_VERSION
+
+def get_version_json_from_module(name):
+    json_file = os.getcwd() + os.path.sep + name + os.path.sep + 'version.json'
     version = {}
     json_data = None
     try:
         json_data = open(json_file)
     except IOError:
-        print 'Versioning file for %s not found.' % f
-        version['app'] = None
-        version['version'] = None
-        version['info'] = None
-        version['author'] = None
-        version['remote_version'] = None
-        return version
+        print 'Versioning file for %s not found.' % name
+        return EMPTY_VERSION
     
     try:
         version = json.load(json_data)
     except ValueError:
         json_data.close()
-        print 'Versioning file for %s contains syntax errors.' % f
-        version['app'] = None
-        version['version'] = None
-        version['info'] = None
-        version['author'] = None
-        version['remote_version'] = None
-        return version
+        print 'Versioning file for %s contains syntax errors.' % name
+        return EMPTY_VERSION
     
     json_data.close()
     return version

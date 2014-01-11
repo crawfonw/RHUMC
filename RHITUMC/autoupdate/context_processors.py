@@ -23,12 +23,13 @@
 import datetime
 import importlib
 
+from json_reader import get_version_json_from_url
 from utils import get_all_modules
 
 UPDATE_PATHS = ['admin', 'portal'] #where it will check and notify
 
 #We'll just store this in memory. If the program gets restarted,
-#then it doesn't hurt to check.
+#then it doesn't hurt to check again.
 last_check = None
 
 def autoupdate_cp(request):
@@ -41,7 +42,9 @@ def autoupdate_cp(request):
             for module_str in get_all_modules():
                 try:
                     module = importlib.import_module(module_str)
-                    print "'%s' version: %s" % (module_str, module.VERSION)
+                    remote = get_version_json_from_url(module.VERSION['remote_version'])
+                    print "'%s' local version: %s" % (module_str, module.VERSION)
+                    print "'%s' remote version: %s" % (module_str, remote)
                 except ImportError:
                     print "'%s' version missing or specified incorrectly; skipping." % module_str
             last_check = datetime.datetime.now()
