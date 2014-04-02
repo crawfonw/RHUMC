@@ -21,15 +21,13 @@
 """
 
 from django.conf.urls import patterns, include, url
-
 from django.http import HttpResponse
+from django.views.generic.base import RedirectView
 
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'RHITUMC.views.home', name='home'),
     url(r'^', include('conference.urls')),
     
     url(r'^favicon.ico', 'conference.views.index'),
@@ -40,6 +38,8 @@ urlpatterns = patterns('',
     
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name='panel-logout'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'admin/login.html'}, name='panel-login'),
-    url(r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '/'}),
-    url(r'^accounts/profile/$', 'django.views.generic.simple.redirect_to', {'url': '/'}),
+    url(r'^accounts/$', RedirectView.as_view(url='/')),
+    url(r'^accounts/profile/$', RedirectView.as_view(url='/')),
+    #url(r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '/'}),
+    #url(r'^accounts/profile/$', 'django.views.generic.simple.redirect_to', {'url': '/'}),
 )

@@ -23,7 +23,11 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.localflavor.us.models import PhoneNumberField
+from django import get_version
+if get_version() < '1.6':
+    from django.contrib.localflavor.us.models import PhoneNumberField
+else:
+    from localflavor.us.models import PhoneNumberField
 
 import datetime
 

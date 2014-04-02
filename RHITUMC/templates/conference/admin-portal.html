@@ -1,14 +1,14 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<a href="{% url conference-index %}">Back to Site Index</a>
+<a href="{% url "conference-index" %}">Back to Site Index</a>
 <br /><br />
 Avaliable Tools:
 <ul>
-<li><a href="{% url admin:index %}">Management System</a></li>
-<li><a href="{% url attendee-emailer %}">Attendee Emailer</a></li>
-<li><a href="{% url schedule-generator %}">LaTeX Program Generator</a></li>
-<li><a href="{% url badges-generator %}">LaTeX Badge Generator</a></li>
-<li><a href="{% url batch-updater %}">School Name Batch Updater</a></li>
+<li><a href="{% url "admin:index" %}">Management System</a></li>
+<li><a href="{% url "attendee-emailer" %}">Attendee Emailer</a></li>
+<li><a href="{% url "schedule-generator" %}">LaTeX Program Generator</a></li>
+<li><a href="{% url "badges-generator" %}">LaTeX Badge Generator</a></li>
+<li><a href="{% url "batch-updater" %}">School Name Batch Updater</a></li>
 </ul>
 {% endblock %}

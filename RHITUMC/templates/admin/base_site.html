@@ -4,7 +4,7 @@
 {% block title %}{{ title }} | {% trans 'Conference site admin' %}{% endblock %}
 
 {% block branding %}
-<h1 id="site-name">{% trans 'Conference administration' %}</h1>{% if not atportal %}<h2><a href="{% url admin-portal %}">Back to Portal</a></h2>{% endif %}
+<h1 id="site-name">{% trans 'Conference administration' %}</h1>{% if not atportal %}<h2><a href="{% url "admin-portal" %}">Back to Portal</a></h2>{% endif %}
 {% endblock %}
 
 {% block nav-global %}{% endblock %}
