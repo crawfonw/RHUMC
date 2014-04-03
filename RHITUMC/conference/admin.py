@@ -24,14 +24,6 @@ from django.contrib import admin
 
 from models import Attendee, Conference, Contactee, Page, Room, Track, Day, TimeSlot, Session, SpecialSession
 
-def pair_for_housing(modeladmin, request, queryset):
-    queryset.update(has_been_paired_for_housing=True)
-pair_for_housing.short_description = 'Pair for Housing'
-
-def unpair_for_housing(modeladmin, request, queryset):
-    queryset.update(has_been_paired_for_housing=False)
-unpair_for_housing.short_description = 'Unpair for Housing'
-
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
     list_per_page = 50
@@ -58,7 +50,15 @@ class AttendeeAdmin(FengShuiAdmin):
     list_display = ('__unicode__', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
     list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
     search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
-    actions = (pair_for_housing, unpair_for_housing,)
+    actions = ('pair_for_housing', 'unpair_for_housing',)
+    
+    def pair_for_housing(self, request, queryset):
+        queryset.update(has_been_paired_for_housing=True)
+    pair_for_housing.short_description = 'Pair selected contactees for housing'
+
+    def unpair_for_housing(self, request, queryset):
+        queryset.update(has_been_paired_for_housing=False)
+    unpair_for_housing.short_description = 'Unpair selected contactees for housing'
 
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
@@ -82,12 +82,26 @@ class SessionAdmin(FengShuiAdmin):
     filter_horizontal = ('speakers',)
     list_display = ('day', 'time', 'track', 'chair',)
     
-#class SpecialSessionAdmin(FengShuiAdmin):
+class ContacteeAdmin(FengShuiAdmin):
+    list_display = ('name', 'active_contact',)
+    actions = ('toggle_active_concatee',)
     
+    def toggle_active_concatee(self, request, queryset):
+        updated = 0
+        for contactee in queryset:
+            contactee.active_contact=(not contactee.active_contact)
+            contactee.save()
+            updated += 1
+        if updated == 1:
+            msg = '1 contactee'
+        else:
+            msg = '%s contactees' % updated
+        self.message_user(request, '%s active state successfully toggled.' % msg)
+    toggle_active_concatee.short_description = 'Toggle active state for selected contactees'
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
-admin.site.register(Contactee)
+admin.site.register(Contactee, ContacteeAdmin)
 admin.site.register(Day)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Room)

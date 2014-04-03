@@ -112,7 +112,7 @@ class BatchUpdateForm(forms.Form):
         
         schools = []
         school_tuples = []
-        for s in Attendee.objects.all().values('school'):
+        for s in Attendee.objects.all().order_by('school').values('school'):
             if s['school'] not in schools:
                 schools.append(s['school'])
                 school_tuples.append((s['school'], s['school']))
