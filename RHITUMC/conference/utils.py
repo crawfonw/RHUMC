@@ -60,7 +60,7 @@ def compile_latex_to_pdf(tex):
 
     #Need to call pdflatex twice to build ToC
     for i in range(2):
-        process = Popen(['pdflatex', '-output-directory', tempdir, '-jobname', filename], stdin=PIPE)
+        process = Popen(['pdflatex', '-output-directory', tempdir, '-jobname', filename], stdin=PIPE, stdout=PIPE)
         process.communicate(tex)
         
     return (tempfile_d, tempfile_path,)

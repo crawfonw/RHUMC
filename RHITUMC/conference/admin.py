@@ -107,6 +107,9 @@ class DayAdmin(FengShuiAdmin):
     
 class SpecialSessionAdmin(FengShuiAdmin):
     list_display = ('day', 'room', 'speaker',)
+    
+class TimeSlotAdmin(FengShuiAdmin):
+    list_display = ('__unicode__', 'conference',)
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
@@ -114,7 +117,7 @@ admin.site.register(Contactee, ContacteeAdmin)
 admin.site.register(Day, DayAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Room)
-admin.site.register(Track, TrackAdmin)
 admin.site.register(Session, SessionAdmin)
 admin.site.register(SpecialSession, SpecialSessionAdmin)
-admin.site.register(TimeSlot)
+admin.site.register(TimeSlot, TimeSlotAdmin)
+admin.site.register(Track, TrackAdmin)
