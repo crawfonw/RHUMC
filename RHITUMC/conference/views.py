@@ -24,18 +24,22 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
 from datetime import datetime
+from shutil import rmtree
+
+import os
 
 from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
+from utils import compile_latex_to_pdf, str_to_file, zip_files_together
 
 FORWARD_REGISTRATIONS = True
 
@@ -125,6 +129,10 @@ def generate_schedule(request):
     if request.method == 'POST':
         form = LaTeXProgramForm(request.POST)
         if form.is_valid():
+            try:
+                action = form.cleaned_data['action']
+            except:
+                action = None
             conf = form.cleaned_data['conference']
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
                          ('display_schools', form.cleaned_data['display_schools']), \
@@ -135,10 +143,70 @@ def generate_schedule(request):
             time_slots = TimeSlot.objects.filter(conference=conf)
             days = Day.objects.filter(conference=conf)
             
-            l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days)
-    
-            response = HttpResponse(l.generate_program(), content_type='application/x-latex')
-            response['Content-Disposition'] = 'attachment; filename="program.tex"'
+            l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
+            
+            if action is None or action == 'tex':
+                response = HttpResponse(l, content_type='application/x-latex')
+                response['Content-Disposition'] = 'attachment; filename="program.tex"'
+            elif action == 'pdf':
+                try:
+                    fd, path = compile_latex_to_pdf(l)
+                except:
+                    raise Http404('Error compiling PDF file from LaTeX code.')
+                try:
+                    pdf = os.fdopen(fd, 'rb')
+                    pdf_out = pdf.read()
+                    pdf.close()
+                except OSError:
+                    raise Http404('Error compiling PDF file from LaTeX code.')
+                
+                response = HttpResponse(content_type='application/pdf')
+                response['Content-Disposition'] = 'attachment; filename="program.pdf"'
+                response.write(pdf_out)
+                
+                rmtree(os.path.split(path)[0])
+            elif action == 'all':
+                try:
+                    tex_fd, tex_path = str_to_file(l)
+                except:
+                    raise Http404('Error writing LaTeX code to file.')
+                try:
+                    tex = os.fdopen(tex_fd, 'rb')
+                    tex_out = tex.read()
+                    tex.close()
+                except OSError:
+                    raise Http404('Error writing LaTeX code to file.')
+                
+                try:
+                    pdf_fd, pdf_path = compile_latex_to_pdf(l)
+                except:
+                    raise Http404('Error compiling PDF file from LaTeX code.')
+                try:
+                    pdf = os.fdopen(pdf_fd, 'rb')
+                    pdf_out = pdf.read()
+                    pdf.close()
+                except OSError:
+                    raise Http404('Error compiling PDF file from LaTeX code.')
+                
+                try:
+                    zip_fd, zip_path = zip_files_together([pdf_path, tex_path])
+                except:
+                    raise Http404('Error zipping .pdf and .tex files together.')
+                try:
+                    zip = os.fdopen(zip_fd, 'rb')
+                    zip_out = zip.read()
+                    zip.close()
+                except OSError:
+                    raise Http404('Error zipping .pdf and .tex files together.')
+                
+                response = HttpResponse(content_type='application/zip')
+                response['Content-Disposition'] = 'attachment; filename="program.zip"'
+                response.write(zip_out)
+                
+                #rmtree(os.path.split(tex_path)[0])
+                #rmtree(os.path.split(pdf_path)[0])
+                #rmtree(os.path.split(zip_path)[0])
+                
             return response
     else:
         form = LaTeXProgramForm()

@@ -98,14 +98,23 @@ class ContacteeAdmin(FengShuiAdmin):
             msg = '%s contactees' % updated
         self.message_user(request, '%s active state successfully toggled.' % msg)
     toggle_active_concatee.short_description = 'Toggle active state for selected contactees'
+    
+class TrackAdmin(FengShuiAdmin):
+    list_display = ('name', 'room', 'conference',)
+    
+class DayAdmin(FengShuiAdmin):
+    list_display = ('date', 'conference',)
+    
+class SpecialSessionAdmin(FengShuiAdmin):
+    list_display = ('day', 'room', 'speaker',)
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(Contactee, ContacteeAdmin)
-admin.site.register(Day)
+admin.site.register(Day, DayAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Room)
-admin.site.register(Track)
+admin.site.register(Track, TrackAdmin)
 admin.site.register(Session, SessionAdmin)
-admin.site.register(SpecialSession)
+admin.site.register(SpecialSession, SpecialSessionAdmin)
 admin.site.register(TimeSlot)

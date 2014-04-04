@@ -26,6 +26,8 @@ from django.forms.forms import NON_FIELD_ERRORS
 
 from django.utils.safestring import mark_safe
 
+from utils import which
+
 #https://gist.github.com/651080
 class EmptyChoiceField(forms.ChoiceField):
     def __init__(self, choices=(), empty_label=None, required=True, widget=None, label=None,
@@ -96,6 +98,9 @@ class AttendeeEmailerForm(forms.Form):
     email_body = forms.CharField(widget=forms.Textarea)
     
 class LaTeXProgramForm(forms.Form):
+    action = None
+    if which('pdflatex') is not None:
+        action = forms.ChoiceField(choices=(('tex', 'LaTeX'), ('pdf', 'PDF'), ('all', 'Both PDF & LaTeX')), required=True)
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
     squish = forms.IntegerField(initial=3, required=True)
     display_titles = forms.BooleanField(required=False, initial=True)

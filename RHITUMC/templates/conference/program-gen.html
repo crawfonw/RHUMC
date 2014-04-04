@@ -13,6 +13,13 @@
 	{{ form.conference }}
 	<br />
 	
+	{% if form.action %}
+	{{ form.action.errors }}
+	<label for="id_action"><strong>Download type:</strong></label>
+	{{ form.action }}
+	<br />
+	{% endif %}
+	
 	{{ form.squish.errors }}
 	<label for="id_squish"><strong>For text that is too long, to what size should it be constrained? (cm)</strong></label>
 	{{ form.squish }}
