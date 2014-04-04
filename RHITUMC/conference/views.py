@@ -57,7 +57,7 @@ def _email_hosts_registration_info(attendee):
         from_email = 'mathconf@mathconf.csse.rose-hulman.edu'
         
         text_content = attendee.all_info()
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to, headers = {'Reply-To': attendee.email})
         msg.send()
         
 def _email_attendee_registration_info(attendee):
