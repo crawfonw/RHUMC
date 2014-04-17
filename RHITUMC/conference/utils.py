@@ -66,9 +66,10 @@ def compile_latex_to_pdf(tex):
     return (tempfile_d, tempfile_path,)
 
 def zip_files_together(files):
+    import random
     tempfile_d, tempfile_path = tempfile.mkstemp(prefix='program', suffix='.zip')
     with zipfile.ZipFile(tempfile_path, 'w') as zip:
         for f in files:
-            zip.write(f)
+            zip.write(f, arcname=('program.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
     
