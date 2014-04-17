@@ -66,7 +66,7 @@ class AttendeeForm(forms.Form):
     is_submitted_for_best_of_competition = forms.BooleanField(required=False)
     
     dietary_restrictions = forms.CharField(required=False, widget=forms.Textarea)
-    requires_housing = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'Yes'), (False, 'No')), renderer=NoListRadioRenderer)) #this is unsafe in terms of form submission, need to fix
+    requires_housing = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'Yes'), (False, 'No')), renderer=NoListRadioRenderer), initial=False)
     #requires_housing = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=NoListRadioRenderer), choices=((True, 'Yes'), (False, 'No')), required=True, initial=None, empty_value=None) #'No' gets coerced into True, not sure why
     comments = forms.CharField(required=False, widget=forms.Textarea)
     
