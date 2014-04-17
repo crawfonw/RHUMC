@@ -24,18 +24,20 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
+import csv
 from datetime import datetime
-from shutil import rmtree
-
 import os
+from shutil import rmtree
+import StringIO
 
-from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, LaTeXBadgesForm, LaTeXProgramForm
+from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
@@ -118,7 +120,53 @@ def attendee_emailer(request):
                               {'title': 'Email Attendees',
                                'form': form,
                                },
-                               RequestContext(request)) 
+                               RequestContext(request))
+    
+@login_required
+def csv_dump(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    if request.method == 'POST':
+        form = CSVDumpForm(request.POST)
+        if form.is_valid():
+            conf = form.cleaned_data['conference']
+            
+            #conference_attendees = Attendee.objects.filter(conference=conf).iterator() #.iterator() if this gets huge (but it shouldn't...)
+            conference_attendees = Attendee.objects.filter(conference=conf)
+            model = conference_attendees.model
+            output = StringIO.StringIO()
+            writer = csv.writer(output, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            
+            headers = []
+            for field in model._meta.fields:
+                headers.append(field.name)
+            print headers
+            writer.writerow(headers)
+            
+            for obj in conference_attendees:
+                row = []
+                for field in headers:
+                    val = getattr(obj, field)
+                    if callable(val):
+                        val = val()
+                    if type(val) == unicode:
+                        val = val.encode('utf-8')
+                    row.append(val)
+                writer.writerow(row)
+            
+            response = HttpResponse(output.getvalue(), content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="%s.csv"' % conf.name
+            output.close()
+            
+            return response
+    else:
+        form = CSVDumpForm()
+        
+    return render_to_response('conference/csv-dump.html',
+                              {'title': 'Data Dumper',
+                               'form' : form,
+                                },
+                              RequestContext(request))
 
 @login_required
 def generate_schedule(request):

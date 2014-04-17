@@ -96,7 +96,10 @@ class AttendeeEmailerForm(forms.Form):
     host = forms.ModelChoiceField(queryset = Contactee.objects.filter(active_contact=True))
     email_subject = forms.CharField(max_length=100)
     email_body = forms.CharField(widget=forms.Textarea)
-    
+
+class CSVDumpForm(forms.Form):
+    conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+
 class LaTeXProgramForm(forms.Form):
     action = None
     if which('pdflatex') is not None:
