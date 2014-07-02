@@ -99,6 +99,7 @@ class AttendeeEmailerForm(forms.Form):
 
 class CSVDumpForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    csv_fields = forms.CharField(widget=forms.Textarea)
 
 class LaTeXProgramForm(forms.Form):
     action = None

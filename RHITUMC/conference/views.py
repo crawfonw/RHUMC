@@ -130,40 +130,54 @@ def csv_dump(request):
         form = CSVDumpForm(request.POST)
         if form.is_valid():
             conf = form.cleaned_data['conference']
+            target_fields = form.cleaned_data['csv_fields'].split(',')
             
             #conference_attendees = Attendee.objects.filter(conference=conf).iterator() #.iterator() if this gets huge (but it shouldn't...)
             conference_attendees = Attendee.objects.filter(conference=conf)
             model = conference_attendees.model
-            output = StringIO.StringIO()
-            writer = csv.writer(output, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            model_fields = [x.name for x in model._meta.fields]
             
+            valid = True
             headers = []
-            for field in model._meta.fields:
-                headers.append(field.name)
-            print headers
-            writer.writerow(headers)
+            error_headers = []
+            for field in target_fields:
+                if field in model_fields:
+                    headers.append(field)
+                else:
+                    valid = False
+                    error_headers.append(field)
             
-            for obj in conference_attendees:
-                row = []
-                for field in headers:
-                    val = getattr(obj, field)
-                    if callable(val):
-                        val = val()
-                    if type(val) == unicode:
-                        val = val.encode('utf-8')
-                    row.append(val)
-                writer.writerow(row)
+            if valid:
+                output = StringIO.StringIO()
+                writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             
-            response = HttpResponse(output.getvalue(), content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="%s.csv"' % conf.name
-            output.close()
-            
-            return response
+                writer.writerow(headers)
+                
+                for obj in conference_attendees:
+                    row = []
+                    for field in headers:
+                        val = getattr(obj, field)
+                        if callable(val):
+                            val = val()
+                        if type(val) == unicode:
+                            val = val.encode('utf-8')
+                        row.append(val)
+                    writer.writerow(row)
+                    print row
+                
+                response = HttpResponse(output.getvalue(), content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="%s.csv"' % conf.name
+                output.close()
+                
+                return response
+            else:
+                form._errors['csv_fields'] = form.error_class([u'Field error - field%s "%s" not present in %s model.' % ('s' if len(error_headers) > 1 else '', ', '.join(error_headers), model._meta.model_name)])
     else:
         form = CSVDumpForm()
+        form.fields['csv_fields'].initial = ','.join([x.name for x in Attendee._meta.fields])
         
     return render_to_response('conference/csv-dump.html',
-                              {'title': 'Data Dumper',
+                              {'title': 'Attendee Data Dumper',
                                'form' : form,
                                 },
                               RequestContext(request))
