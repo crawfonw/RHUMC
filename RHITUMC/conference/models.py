@@ -42,7 +42,7 @@ class Conference(models.Model):
         ordering = ('start_date', 'end_date',)
     
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
     
     def format_date(self):
         if self.start_date.month == self.end_date.month:
@@ -120,7 +120,7 @@ class Attendee(models.Model):
         ordering = ('last_name', 'first_name',)
     
     def __unicode__(self):
-        return '%s, %s' % (self.last_name, self.first_name)
+        return u'%s, %s' % (self.last_name, self.first_name)
     
     def clean(self):
         if self.is_submitting_talk:
@@ -164,7 +164,7 @@ class Room(models.Model):
         unique_together = (('building', 'room_number',),)
 
     def __unicode__(self):
-        return '%s %s' % (self.building, self.room_number)
+        return u'%s %s' % (self.building, self.room_number)
 
 class Track(models.Model):
     conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
@@ -172,7 +172,7 @@ class Track(models.Model):
     room = models.ForeignKey(Room)
     
     def __unicode__(self):
-        return '%s' % self.name
+        return u'%s' % self.name
 
 class Day(models.Model):
     conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
@@ -182,7 +182,7 @@ class Day(models.Model):
         ordering = ('date',)
 
     def __unicode__(self):
-        return '%s' % datetime.date.strftime(self.date, '%A %m/%d/%Y')
+        return u'%s' % datetime.date.strftime(self.date, '%A %m/%d/%Y')
     
     def clean(self):
         if self.date > self.conference.end_date or self.date < self.conference.start_date:
@@ -198,7 +198,7 @@ class TimeSlot(models.Model):
         unique_together = (('start_time', 'end_time',),)
     
     def __unicode__(self):
-        return '%s - %s' % (datetime.time.strftime(self.start_time, '%I:%M %p'), datetime.time.strftime(self.end_time, '%I:%M %p'))
+        return u'%s - %s' % (datetime.time.strftime(self.start_time, '%I:%M %p'), datetime.time.strftime(self.end_time, '%I:%M %p'))
     
     def clean(self):
         if self.end_time < self.start_time:
@@ -215,10 +215,10 @@ class Session(models.Model):
     day = models.ForeignKey(Day, limit_choices_to=models.Q(date__gte=datetime.date.today))
     
     class Meta:
-        ordering = ('day', 'time', 'track')
+        ordering = ('day', 'time', 'track',)
     
     def __unicode__(self):
-        return 'Speakers: %s' % self.speakers.all()
+        return u'Speakers: %s' % '; '.join([str(x) for x in self.speakers.all()])
     
 class SpecialSession(models.Model):
     speaker = models.CharField(max_length=100)
@@ -234,7 +234,7 @@ class SpecialSession(models.Model):
     has_page_in_program = models.BooleanField(help_text='Check if you want this to have an extended page in the program. Eg. for a Plenary Talk. Leave unchecked if you just want the information to appear in the program index.')
     
     def __unicode__(self):
-        return 'Special Session: %s' % self.speaker
+        return u'Special Session: %s' % self.speaker
 
 class Page(models.Model):
     title = models.CharField(max_length=100)
@@ -244,7 +244,7 @@ class Page(models.Model):
     page_text = models.TextField(blank=True, help_text='For internal pages.')
     
     def __unicode__(self):
-        return self.title
+        return unicode(self.title)
     
     def clean(self):
         if self.is_link and self.link == None:
@@ -260,5 +260,5 @@ class Contactee(models.Model):
         ordering = ('name',)
         
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
         

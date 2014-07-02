@@ -130,7 +130,7 @@ def csv_dump(request):
         form = CSVDumpForm(request.POST)
         if form.is_valid():
             conf = form.cleaned_data['conference']
-            target_fields = form.cleaned_data['csv_fields'].split(',')
+            target_fields = map(lambda x: x.strip(), form.cleaned_data['csv_fields'].split(','))
             
             #conference_attendees = Attendee.objects.filter(conference=conf).iterator() #.iterator() if this gets huge (but it shouldn't...)
             conference_attendees = Attendee.objects.filter(conference=conf)
