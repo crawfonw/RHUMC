@@ -50,9 +50,9 @@ class Conference(models.Model):
         else:
             return '%s - %s' % ((self.start_date.strftime('%b %d'), self.end_date.strftime('%b %d, %Y')))
         
-    def _is_in_past(self):
+    def past_conference(self):
         return self.end_date < datetime.date.today()
-    past_conference = property(_is_in_past)
+    past_conference.boolean = True
     
     def clean(self):
         if self.end_date < self.start_date:
@@ -154,6 +154,10 @@ class Attendee(models.Model):
         if self.comments != '':
             info += 'Additional comments:\n%s\n' % self.comments
         return info
+    
+    def assigned_to_session(self):
+        return Session.objects.filter(speakers__id__exact=self.id).count() > 0
+    assigned_to_session.boolean = True
 
 class Room(models.Model):
     building = models.CharField(max_length=100)

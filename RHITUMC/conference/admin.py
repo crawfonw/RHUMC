@@ -47,8 +47,10 @@ class AttendeeAdmin(FengShuiAdmin):
                                      })
                   
                   )
-    list_display = ('__unicode__', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
-    list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', 'conference',)
+    list_display = ('__unicode__', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', \
+                    'has_been_paired_for_housing', 'conference', 'assigned_to_session', )
+    list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', \
+                   'conference', )
     search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
     actions = ('pair_for_housing', 'unpair_for_housing',)
     
@@ -74,7 +76,7 @@ class PageAdmin(FengShuiAdmin):
                   )
 
 class ConferenceAdmin(FengShuiAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference',)
+    list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference', )
     list_filter = ('registration_open',)
     search_fields = ('name',)
     
