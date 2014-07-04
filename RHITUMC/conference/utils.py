@@ -72,4 +72,10 @@ def zip_files_together(files):
         for f in files:
             zip.write(f, arcname=('program.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
-    
+
+def clean_unicode_from_model(model):
+    print model
+    for field in model._meta.fields:
+        print type(field), field.name, dir(field)
+    print model
+    return model

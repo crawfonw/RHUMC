@@ -22,6 +22,7 @@
 
 from django.contrib import admin
 
+from filters import AttendeeAssignedToSessionFilter, PastConferenceFilter
 from models import Attendee, Conference, Contactee, Page, Room, Track, Day, TimeSlot, Session, SpecialSession
 
 class FengShuiAdmin(admin.ModelAdmin):
@@ -48,9 +49,9 @@ class AttendeeAdmin(FengShuiAdmin):
                   
                   )
     list_display = ('__unicode__', 'school', 'attendee_type', 'is_submitting_talk', 'requires_housing', \
-                    'has_been_paired_for_housing', 'conference', 'assigned_to_session', )
+                    'has_been_paired_for_housing', 'assigned_to_session', 'conference', )
     list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', \
-                   'conference', )
+                   AttendeeAssignedToSessionFilter, 'conference', )
     search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
     actions = ('pair_for_housing', 'unpair_for_housing',)
     
@@ -77,7 +78,7 @@ class PageAdmin(FengShuiAdmin):
 
 class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference', )
-    list_filter = ('registration_open',)
+    list_filter = ('registration_open', PastConferenceFilter, )
     search_fields = ('name',)
     
 class SessionAdmin(FengShuiAdmin):

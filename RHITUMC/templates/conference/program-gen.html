@@ -25,6 +25,11 @@
 	{{ form.squish }}
 	<br />
 	
+	{{ form.convert_unicode.errors }}
+	<label for="id_convert_unicode"><strong>Try to Convert Unicode Characters:</strong></label>
+	{{ form.convert_unicode }}
+	<br />
+	
 	{{ form.display_titles.errors }}
 	<label for="id_display_titles"><strong>Display Paper Titles:</strong></label>
 	{{ form.display_titles }}

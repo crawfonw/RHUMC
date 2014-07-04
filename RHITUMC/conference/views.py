@@ -41,7 +41,7 @@ from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpFor
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
-from utils import compile_latex_to_pdf, str_to_file, zip_files_together
+from utils import clean_unicode_from_model, compile_latex_to_pdf, str_to_file, zip_files_together
 
 FORWARD_REGISTRATIONS = True
 
@@ -204,6 +204,11 @@ def generate_schedule(request):
             tracks = Track.objects.filter(conference=conf)
             time_slots = TimeSlot.objects.filter(conference=conf)
             days = Day.objects.filter(conference=conf)
+            
+            if form.cleaned_data['convert_unicode']:
+                for session in sessions:
+                    for speaker in session.speakers.all():
+                        speaker = clean_unicode_from_model(speaker)
             
             l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
             
