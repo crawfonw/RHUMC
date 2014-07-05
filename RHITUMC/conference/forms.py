@@ -106,6 +106,7 @@ class LaTeXProgramForm(forms.Form):
     if which('pdflatex') is not None:
         action = forms.ChoiceField(choices=(('tex', 'LaTeX'), ('pdf', 'PDF'), ('all', 'Both PDF & LaTeX')), required=True)
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    file_name = forms.CharField(initial='program', required=True)
     squish = forms.IntegerField(initial=3, required=True)
     display_titles = forms.BooleanField(required=False, initial=True)
     display_schools = forms.BooleanField(required=False)

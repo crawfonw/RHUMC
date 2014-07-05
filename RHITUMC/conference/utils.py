@@ -28,7 +28,6 @@ import zipfile
 
 #http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
-    import os
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -44,17 +43,17 @@ def which(program):
                 return exe_file
     return None
 
-def str_to_file(s):
-    tempfile_d, tempfile_path = tempfile.mkstemp(prefix='program', suffix='.tex')
+def str_to_file(s, file_name, file_ext):
+    tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix=file_ext if file_ext.startswith('.') else '.' + file_ext)
     f = open(tempfile_path, 'w')
     f.write(s)
     f.close()
     return (tempfile_d, tempfile_path,)
     
 
-def compile_latex_to_pdf(tex):
+def compile_latex_to_pdf(tex, file_name, file_ext):
     tempdir = tempfile.mkdtemp() + os.sep
-    tempfile_d, tempfile_path = tempfile.mkstemp(prefix='program', suffix='.pdf', dir=tempdir)
+    tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix=file_ext if file_ext.startswith('.') else '.' + file_ext, dir=tempdir)
     tempfile_ = os.path.split(tempfile_path)[1]
     filename = os.path.splitext(tempfile_)[0]
 
@@ -65,12 +64,11 @@ def compile_latex_to_pdf(tex):
         
     return (tempfile_d, tempfile_path,)
 
-def zip_files_together(files):
-    import random
-    tempfile_d, tempfile_path = tempfile.mkstemp(prefix='program', suffix='.zip')
+def zip_files_together(files, file_name):
+    tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix='.zip')
     with zipfile.ZipFile(tempfile_path, 'w') as zip:
         for f in files:
-            zip.write(f, arcname=('program.' + os.path.basename(f).split('.')[1]))
+            zip.write(f, arcname=(file_name + '.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
 
 def clean_unicode_from_model(model):

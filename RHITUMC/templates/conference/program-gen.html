@@ -20,6 +20,11 @@
 	<br />
 	{% endif %}
 	
+	{{ form.file_name.errors }}
+	<label for="id_file_name"><strong>Name of output file:</strong></label>
+	{{ form.file_name }}
+	<br />
+	
 	{{ form.squish.errors }}
 	<label for="id_squish"><strong>For text that is too long, to what size should it be constrained? (cm)</strong></label>
 	{{ form.squish }}

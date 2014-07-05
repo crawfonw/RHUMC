@@ -196,6 +196,7 @@ def generate_schedule(request):
             except:
                 action = None
             conf = form.cleaned_data['conference']
+            file_name = form.cleaned_data['file_name']
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
                          ('display_schools', form.cleaned_data['display_schools']), \
                          ('squish', form.cleaned_data['squish'])})
@@ -214,10 +215,10 @@ def generate_schedule(request):
             
             if action is None or action == 'tex':
                 response = HttpResponse(l, content_type='application/x-latex')
-                response['Content-Disposition'] = 'attachment; filename="program.tex"'
+                response['Content-Disposition'] = 'attachment; filename="%s.tex"' % file_name
             elif action == 'pdf':
                 try:
-                    fd, path = compile_latex_to_pdf(l)
+                    fd, path = compile_latex_to_pdf(l, file_name, '.pdf')
                 except:
                     raise Http404('Error compiling PDF file from LaTeX code.')
                 try:
@@ -228,13 +229,13 @@ def generate_schedule(request):
                     raise Http404('Error compiling PDF file from LaTeX code.')
                 
                 response = HttpResponse(content_type='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename="program.pdf"'
+                response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % file_name
                 response.write(pdf_out)
                 
                 rmtree(os.path.split(path)[0])
             elif action == 'all':
                 try:
-                    tex_fd, tex_path = str_to_file(l)
+                    tex_fd, tex_path = str_to_file(l, file_name, 'tex')
                 except:
                     raise Http404('Error writing LaTeX code to file.')
                 try:
@@ -245,7 +246,7 @@ def generate_schedule(request):
                     raise Http404('Error writing LaTeX code to file.')
                 
                 try:
-                    pdf_fd, pdf_path = compile_latex_to_pdf(l)
+                    pdf_fd, pdf_path = compile_latex_to_pdf(l, file_name, '.pdf')
                 except:
                     raise Http404('Error compiling PDF file from LaTeX code.')
                 try:
@@ -256,7 +257,7 @@ def generate_schedule(request):
                     raise Http404('Error compiling PDF file from LaTeX code.')
                 
                 try:
-                    zip_fd, zip_path = zip_files_together([pdf_path, tex_path])
+                    zip_fd, zip_path = zip_files_together([pdf_path, tex_path], file_name)
                 except:
                     raise Http404('Error zipping .pdf and .tex files together.')
                 try:
@@ -267,12 +268,8 @@ def generate_schedule(request):
                     raise Http404('Error zipping .pdf and .tex files together.')
                 
                 response = HttpResponse(content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename="program.zip"'
+                response['Content-Disposition'] = 'attachment; filename="%s.zip"' % file_name
                 response.write(zip_out)
-                
-                #rmtree(os.path.split(tex_path)[0])
-                #rmtree(os.path.split(pdf_path)[0])
-                #rmtree(os.path.split(zip_path)[0])
                 
             return response
     else:

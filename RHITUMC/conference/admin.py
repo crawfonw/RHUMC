@@ -32,19 +32,19 @@ class FengShuiAdmin(admin.ModelAdmin):
 class AttendeeAdmin(FengShuiAdmin):
     fieldsets = (
                   ('General Information', {
-                          'fields': ('conference', 'first_name', 'last_name', 'email', 'sex',),
+                          'fields': ('conference', 'first_name', 'last_name', 'email', 'sex', ),
                           }),
                   ('School Information', {
-                                          'classes': ('collapse',),
-                                          'fields': ('school', 'size_of_institute', 'attendee_type', 'year',),
+                                          'classes': ('collapse', ),
+                                          'fields': ('school', 'size_of_institute', 'attendee_type', 'year', ),
                                           }),
                   ('Talk Information', {
-                                        'classes': ('collapse',),
-                                        'fields': ('is_submitting_talk', 'paper_title', 'paper_abstract', 'is_submitted_for_best_of_competition',),
+                                        'classes': ('collapse', ),
+                                        'fields': ('is_submitting_talk', 'paper_title', 'paper_abstract', 'is_submitted_for_best_of_competition', ),
                                         }),
                   ('Miscellaneous', {
-                                     'classes': ('collapse',),
-                                     'fields': ('dietary_restrictions', 'requires_housing', 'has_been_paired_for_housing', 'comments',),
+                                     'classes': ('collapse', ),
+                                     'fields': ('dietary_restrictions', 'requires_housing', 'has_been_paired_for_housing', 'comments', ),
                                      })
                   
                   )
@@ -53,7 +53,7 @@ class AttendeeAdmin(FengShuiAdmin):
     list_filter = ('attendee_type', 'is_submitting_talk', 'requires_housing', 'has_been_paired_for_housing', \
                    AttendeeAssignedToSessionFilter, 'conference', )
     search_fields = ('first_name', 'last_name', 'school', 'paper_title', 'paper_abstract', 'dietary_restrictions', 'comments',)
-    actions = ('pair_for_housing', 'unpair_for_housing',)
+    actions = ('pair_for_housing', 'unpair_for_housing', )
     
     def pair_for_housing(self, request, queryset):
         queryset.update(has_been_paired_for_housing=True)
@@ -66,28 +66,30 @@ class AttendeeAdmin(FengShuiAdmin):
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
                   ('General Settings', {
-                                        'fields': ('title',),
+                                        'fields': ('title', ),
                                         }),
                   ('Link Settings', {
-                                     'fields': ('is_link', 'link',),
+                                     'fields': ('is_link', 'link', ),
                                     }),
                   ('Page Settings', {
-                                    'fields': ('on_sidebar', 'page_text',),
+                                    'fields': ('on_sidebar', 'page_text', ),
                                     }),
                   )
 
 class ConferenceAdmin(FengShuiAdmin):
     list_display = ('name', 'start_date', 'end_date', 'registration_open', 'past_conference', )
     list_filter = ('registration_open', PastConferenceFilter, )
-    search_fields = ('name',)
+    search_fields = ('name', )
     
 class SessionAdmin(FengShuiAdmin):
     filter_horizontal = ('speakers',)
-    list_display = ('day', 'time', 'track', 'chair',)
+    list_display = ('day', 'time', 'track', 'chair', )
     
 class ContacteeAdmin(FengShuiAdmin):
-    list_display = ('name', 'active_contact',)
-    actions = ('toggle_active_concatee',)
+    list_display = ('name', 'active_contact', )
+    list_filter = ('active_contact', )
+    search_fields = ('name', 'email', )
+    actions = ('toggle_active_concatee', )
     
     def toggle_active_concatee(self, request, queryset):
         updated = 0
@@ -103,16 +105,16 @@ class ContacteeAdmin(FengShuiAdmin):
     toggle_active_concatee.short_description = 'Toggle active state for selected contactees'
     
 class TrackAdmin(FengShuiAdmin):
-    list_display = ('name', 'room', 'conference',)
+    list_display = ('name', 'room', 'conference', )
     
 class DayAdmin(FengShuiAdmin):
-    list_display = ('date', 'conference',)
+    list_display = ('date', 'conference', )
     
 class SpecialSessionAdmin(FengShuiAdmin):
-    list_display = ('day', 'room', 'speaker',)
+    list_display = ('day', 'room', 'speaker', )
     
 class TimeSlotAdmin(FengShuiAdmin):
-    list_display = ('__unicode__', 'conference',)
+    list_display = ('__unicode__', 'conference', )
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)
