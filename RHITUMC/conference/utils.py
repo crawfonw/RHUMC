@@ -51,9 +51,9 @@ def str_to_file(s, file_name, file_ext):
     return (tempfile_d, tempfile_path,)
     
 
-def compile_latex_to_pdf(tex, file_name, file_ext):
+def compile_latex_to_pdf(tex, file_name):
     tempdir = tempfile.mkdtemp() + os.sep
-    tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix=file_ext if file_ext.startswith('.') else '.' + file_ext, dir=tempdir)
+    tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix='.pdf', dir=tempdir)
     tempfile_ = os.path.split(tempfile_path)[1]
     filename = os.path.splitext(tempfile_)[0]
 
@@ -71,9 +71,7 @@ def zip_files_together(files, file_name):
             zip.write(f, arcname=(file_name + '.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
 
-def clean_unicode_from_model(model):
-    print model
-    for field in model._meta.fields:
-        print type(field), field.name, dir(field)
-    print model
-    return model
+def convert_unicode(unicode_string):
+    #return unicode_string
+    return 'AAA'
+

@@ -208,70 +208,63 @@ def generate_schedule(request):
             
             if form.cleaned_data['convert_unicode']:
                 for session in sessions:
-                    for speaker in session.speakers.all():
+                    for speaker in session.speakers.all(): #this won't work, need to figure a way that will
                         speaker = clean_unicode_from_model(speaker)
             
             l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
-            
-            if action is None or action == 'tex':
-                response = HttpResponse(l, content_type='application/x-latex')
-                response['Content-Disposition'] = 'attachment; filename="%s.tex"' % file_name
-            elif action == 'pdf':
-                try:
-                    fd, path = compile_latex_to_pdf(l, file_name, '.pdf')
-                except:
-                    raise Http404('Error compiling PDF file from LaTeX code.')
-                try:
-                    pdf = os.fdopen(fd, 'rb')
-                    pdf_out = pdf.read()
-                    pdf.close()
-                except OSError:
-                    raise Http404('Error compiling PDF file from LaTeX code.')
-                
-                response = HttpResponse(content_type='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % file_name
-                response.write(pdf_out)
-                
-                rmtree(os.path.split(path)[0])
-            elif action == 'all':
-                try:
-                    tex_fd, tex_path = str_to_file(l, file_name, 'tex')
-                except:
-                    raise Http404('Error writing LaTeX code to file.')
-                try:
-                    tex = os.fdopen(tex_fd, 'rb')
-                    tex_out = tex.read()
-                    tex.close()
-                except OSError:
-                    raise Http404('Error writing LaTeX code to file.')
-                
-                try:
-                    pdf_fd, pdf_path = compile_latex_to_pdf(l, file_name, '.pdf')
-                except:
-                    raise Http404('Error compiling PDF file from LaTeX code.')
-                try:
-                    pdf = os.fdopen(pdf_fd, 'rb')
-                    pdf_out = pdf.read()
-                    pdf.close()
-                except OSError:
-                    raise Http404('Error compiling PDF file from LaTeX code.')
-                
-                try:
-                    zip_fd, zip_path = zip_files_together([pdf_path, tex_path], file_name)
-                except:
-                    raise Http404('Error zipping .pdf and .tex files together.')
-                try:
-                    zip = os.fdopen(zip_fd, 'rb')
-                    zip_out = zip.read()
-                    zip.close()
-                except OSError:
-                    raise Http404('Error zipping .pdf and .tex files together.')
-                
-                response = HttpResponse(content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename="%s.zip"' % file_name
-                response.write(zip_out)
-                
-            return response
+            if l.errors is not None:
+                form._errors['non_field_errors'] = form.error_class([l.errors])
+            else:
+                if action is None or action == 'tex':
+                    response = HttpResponse(l, content_type='application/x-latex')
+                    response['Content-Disposition'] = 'attachment; filename="%s.tex"' % file_name
+                elif action == 'pdf':
+                    try:
+                        fd, path = compile_latex_to_pdf(l, file_name)
+                    except:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    try:
+                        pdf = os.fdopen(fd, 'rb')
+                        pdf_out = pdf.read()
+                        pdf.close()
+                    except OSError:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    
+                    response = HttpResponse(content_type='application/pdf')
+                    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % file_name
+                    response.write(pdf_out)
+                    
+                    rmtree(os.path.split(path)[0])
+                elif action == 'all':
+                    try:
+                        tex_fd, tex_path = str_to_file(l, file_name, 'tex')
+                        tex = os.fdopen(tex_fd, 'rb')
+                        tex_out = tex.read()
+                        tex.close()
+                    except OSError:
+                        raise Http404('Error writing LaTeX code to file.')
+                    
+                    try:
+                        pdf_fd, pdf_path = compile_latex_to_pdf(l, file_name)
+                        pdf = os.fdopen(pdf_fd, 'rb')
+                        pdf_out = pdf.read()
+                        pdf.close()
+                    except OSError:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    
+                    try:
+                        zip_fd, zip_path = zip_files_together([pdf_path, tex_path], file_name)
+                        zip = os.fdopen(zip_fd, 'rb')
+                        zip_out = zip.read()
+                        zip.close()
+                    except OSError:
+                        raise Http404('Error zipping .pdf and .tex files together.')
+                    
+                    response = HttpResponse(content_type='application/zip')
+                    response['Content-Disposition'] = 'attachment; filename="%s.zip"' % file_name
+                    response.write(zip_out)
+                    
+                return response
     else:
         form = LaTeXProgramForm()
         

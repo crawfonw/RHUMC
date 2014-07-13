@@ -33,6 +33,7 @@ class LaTeXProgram():
     
     def __init__(self, opts, sessions, special_sessions, time_slots, tracks, days):
         
+        self.errors = None
         self.opts = opts
         self.sessions = sessions
         self.special_sessions = special_sessions
@@ -67,12 +68,16 @@ class LaTeXProgram():
 '''
 
     def generate_program(self):
-        return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
+        try:
+            return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
+        except:
+            self.errors = u'Bad data encountered whilst generating the LaTeX file; please verify in the Management System.'
 
     def build_table_of_contents(self):
         return self.build_header() + self.build_body()
         
     def build_body(self):
+        #TODO: refactor
         time_session_dict = {}
         for slot in self.time_slots:
             time_session_dict[slot] = [None, None] #[regular sessions, special sessions]
