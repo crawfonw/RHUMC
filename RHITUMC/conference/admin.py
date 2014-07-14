@@ -25,6 +25,8 @@ from django.contrib import admin
 from filters import AttendeeAssignedToSessionFilter, PastConferenceFilter
 from models import Attendee, Conference, Contactee, Page, Room, Track, Day, TimeSlot, Session, SpecialSession
 
+import datetime
+
 class FengShuiAdmin(admin.ModelAdmin):
     actions_on_bottom = True
     list_per_page = 50
@@ -62,6 +64,11 @@ class AttendeeAdmin(FengShuiAdmin):
     def unpair_for_housing(self, request, queryset):
         queryset.update(has_been_paired_for_housing=False)
     unpair_for_housing.short_description = 'Unpair selected contactees for housing'
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.conference.end_date < datetime.date.today():
+            return [x.name for x in obj._meta.fields]
+        return self.readonly_fields
 
 class PageAdmin(FengShuiAdmin):
     fieldsets = (
@@ -81,9 +88,19 @@ class ConferenceAdmin(FengShuiAdmin):
     list_filter = ('registration_open', PastConferenceFilter, )
     search_fields = ('name', )
     
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.end_date < datetime.date.today():
+            return ['name', 'start_date', 'end_date', 'registration_open', 'show_program']
+        return self.readonly_fields
+    
 class SessionAdmin(FengShuiAdmin):
     filter_horizontal = ('speakers',)
     list_display = ('day', 'time', 'track', 'chair', )
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.day.date < datetime.date.today():
+            return ['chair', 'speakers', 'track', 'time', 'day']
+        return self.readonly_fields
     
 class ContacteeAdmin(FengShuiAdmin):
     list_display = ('name', 'active_contact', )
@@ -107,14 +124,36 @@ class ContacteeAdmin(FengShuiAdmin):
 class TrackAdmin(FengShuiAdmin):
     list_display = ('name', 'room', 'conference', )
     
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.conference.end_date < datetime.date.today():
+            return ['conference', 'name', 'room']
+        return self.readonly_fields
+    
 class DayAdmin(FengShuiAdmin):
     list_display = ('date', 'conference', )
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.date < datetime.date.today():
+            return ['conference', 'date']
+        return self.readonly_fields
     
 class SpecialSessionAdmin(FengShuiAdmin):
     list_display = ('day', 'room', 'speaker', )
     
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.day.date < datetime.date.today():
+            readonly = []
+            for x in obj._meta.fields:
+                if x.name != 'id':
+                    readonly.append(x.name)
+            return readonly
+        return self.readonly_fields
+    
 class TimeSlotAdmin(FengShuiAdmin):
     list_display = ('__unicode__', 'conference', )
+    
+    #won't override get_readonly_fields since currently
+    #these timeslots can be reused by other models
 
 admin.site.register(Attendee, AttendeeAdmin)
 admin.site.register(Conference, ConferenceAdmin)

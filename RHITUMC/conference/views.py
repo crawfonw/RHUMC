@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.forms.models import model_to_dict
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
@@ -41,7 +42,7 @@ from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpFor
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
-from utils import clean_unicode_from_model, compile_latex_to_pdf, str_to_file, zip_files_together
+from utils import clean_unicode_and_escape_latex_for_dict, compile_latex_to_pdf, str_to_file, zip_files_together
 
 FORWARD_REGISTRATIONS = True
 
@@ -200,16 +201,22 @@ def generate_schedule(request):
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
                          ('display_schools', form.cleaned_data['display_schools']), \
                          ('squish', form.cleaned_data['squish'])})
-            sessions = Session.objects.filter(day__conference=conf)
-            special_sessions = SpecialSession.objects.filter(day__conference=conf)
-            tracks = Track.objects.filter(conference=conf)
-            time_slots = TimeSlot.objects.filter(conference=conf)
-            days = Day.objects.filter(conference=conf)
+            sessions = [model_to_dict(s) for s in Session.objects.filter(day__conference=conf)]
+            special_sessions = [model_to_dict(s) for s in SpecialSession.objects.filter(day__conference=conf)]
+            tracks = [model_to_dict(s) for s in Track.objects.filter(conference=conf)]
+            time_slots = [model_to_dict(s) for s in TimeSlot.objects.filter(conference=conf)]
+            days = [model_to_dict(s) for s in Day.objects.filter(conference=conf)]
+            
+            for session in sessions:
+                session['chair'] = Attendee.objects.filter(id=session['chair'])
+                session['speakers'] = [model_to_dict(a) for a in Attendee.objects.filter(id__in=session['speakers'])]
+                
+            print sessions
             
             if form.cleaned_data['convert_unicode']:
                 for session in sessions:
-                    for speaker in session.speakers.all(): #this won't work, need to figure a way that will
-                        speaker = clean_unicode_from_model(speaker)
+                    for speaker in session.speakers.all():
+                        speaker = clean_unicode_and_escape_latex_for_dict(speaker)
             
             l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
             if l.errors is not None:

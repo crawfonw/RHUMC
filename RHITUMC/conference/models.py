@@ -193,6 +193,7 @@ class Day(models.Model):
             raise ValidationError(u"This day's date must be within the Conference dates.")
 
 class TimeSlot(models.Model):
+    #TODO: remove conference reference or change unique_together
     conference = models.ForeignKey(Conference, limit_choices_to=models.Q(end_date__gte=datetime.date.today))
     start_time = models.TimeField(help_text='hh:mm (input in 24-hour format)')
     end_time = models.TimeField(help_text='hh:mm (input in 24-hour format)')

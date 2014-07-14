@@ -21,10 +21,26 @@
 """
 
 from subprocess import PIPE, Popen
+from unicodedata import normalize
 
 import os
+import re
 import tempfile
 import zipfile
+
+LATEX_REGEX = r'((?<!\\)[#\$%\^&_\{\}~])'
+LATEX_RESERVED = {
+    '&':  r'\&',
+    '%':  r'\%', 
+    '$':  r'\$', 
+    '#':  r'\#', 
+    '_':  r'\_', 
+    '{':  r'\{', 
+    '}':  r'\}',
+    '~':  r'\textasciitilde{}', 
+    '^':  r'\^{}', 
+    '\\': r'\textbackslash{}',
+}
 
 #http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(program):
@@ -50,7 +66,6 @@ def str_to_file(s, file_name, file_ext):
     f.close()
     return (tempfile_d, tempfile_path,)
     
-
 def compile_latex_to_pdf(tex, file_name):
     tempdir = tempfile.mkdtemp() + os.sep
     tempfile_d, tempfile_path = tempfile.mkstemp(prefix=file_name, suffix='.pdf', dir=tempdir)
@@ -71,7 +86,17 @@ def zip_files_together(files, file_name):
             zip.write(f, arcname=(file_name + '.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
 
+def clean_unicode_and_escape_latex_for_dict(model_dict):
+    for key,val in model_dict.item():
+        if isinstance(val, list):
+            model_dict[key] = escape_latex(val)
+        elif isinstance(val, unicode):
+            model_dict[key] = convert_unicode(val)
+    return model_dict
+
 def convert_unicode(unicode_string):
-    #return unicode_string
-    return 'AAA'
+    return normalize('NFKD', unicode_string).encode('ascii', 'ignore') #use 'replace' for ?s instead of omitting
+
+def escape_latex(s):
+    return re.sub(LATEX_REGEX, lambda m: ''.join('%s' % CHARS[i] for i in m.groups()), s)
 

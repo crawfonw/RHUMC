@@ -71,7 +71,8 @@ class LaTeXProgram():
         try:
             return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
         except:
-            self.errors = u'Bad data encountered whilst generating the LaTeX file; please verify in the Management System.'
+            self.errors = u'An unexpected error occurred whilst generating the LaTeX file. This is most likely due to bad data. Try again and if the problem persists then verify your data in the Management System.'
+            return None
 
     def build_table_of_contents(self):
         return self.build_header() + self.build_body()
