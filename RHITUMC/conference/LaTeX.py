@@ -25,7 +25,7 @@ def _timeslot_on_day_has_talks(time_slot_talks, day):
         return True
     if time_slot_talks[0] is not None:
         for talk in time_slot_talks[0]:
-            if talk.day == day:
+            if talk['day'] == day:
                 return True
     return False
 
@@ -33,7 +33,6 @@ class LaTeXProgram():
     
     def __init__(self, opts, sessions, special_sessions, time_slots, tracks, days):
         
-        self.errors = None
         self.opts = opts
         self.sessions = sessions
         self.special_sessions = special_sessions
@@ -68,11 +67,7 @@ class LaTeXProgram():
 '''
 
     def generate_program(self):
-        try:
-            return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
-        except:
-            self.errors = u'An unexpected error occurred whilst generating the LaTeX file. This is most likely due to bad data. Try again and if the problem persists then verify your data in the Management System.'
-            return None
+        return self.doc % (self.opts['squish'], self.build_table_of_contents(), self.build_special_sessions(), self.build_student_talks())
 
     def build_table_of_contents(self):
         return self.build_header() + self.build_body()
@@ -83,9 +78,9 @@ class LaTeXProgram():
         for slot in self.time_slots:
             time_session_dict[slot] = [None, None] #[regular sessions, special sessions]
         for session in self.sessions:
-            if time_session_dict[session.time][0] is None:
-                time_session_dict[session.time][0] = []
-            time_session_dict[session.time][0].append(session)
+            if time_session_dict[session['time']][0] is None:
+                time_session_dict[session['time']][0] = []
+            time_session_dict[session['time']][0].append(session)
         for special_session in self.special_sessions:
             if time_session_dict[special_session.time][1] is None:
                 time_session_dict[special_session.time][1] = special_session
@@ -113,20 +108,20 @@ class LaTeXProgram():
                             #Sessions will be sorted correctly based on Tracks from the view
                             has_talk = False
                             for session in time_session_dict[time_slot][0]:
-                                if session.track == track and session.day == day:
-                                    name = '\\\\ '.join([str(s) for s in session.speakers.all()])
-                                    if len(name) > 20 or session.speakers.all().count() > 1:
+                                if session['track'] == track and session['day'] == day:
+                                    name = '\\\\ '.join(['%s, %s' % (s['last_name'], s['first_name']) for s in session['speakers']])
+                                    if len(name) > 20 or len(session['speakers']) > 1:
                                         temp1 += '& \\parbox[t]{\\squish}{\\centering %s} ' % name 
                                     else:
                                         temp1 += '& %s ' % name
-                                    if len(session.speakers.all()[0].school) > 20:
-                                        temp2 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session.speakers.all()[0].school
+                                    if len(session['speakers'][0]['school']) > 20:
+                                        temp2 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session['speakers'][0]['school']
                                     else:
-                                        temp2 += '& %s ' % session.speakers.all()[0].school
-                                    if len(session.speakers.all()[0].paper_title) > 20:
-                                        temp3 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session.speakers.all()[0].paper_title
+                                        temp2 += '& %s ' % session['speakers'][0]['school']
+                                    if len(session['speakers'][0]['paper_title']) > 20:
+                                        temp3 += '& \\parbox[t]{\\squish}{\\centering %s} ' % session['speakers'][0]['paper_title']
                                     else:
-                                        temp3 += '& %s ' % session.speakers.all()[0].paper_title
+                                        temp3 += '& %s ' % session['speakers'][0]['paper_title']
                                     has_talk = True
                                     break
                             if not has_talk:
@@ -178,15 +173,15 @@ class LaTeXProgram():
         return body
     
     def build_single_talk(self, talk):
-        speakers = talk.speakers.all()
+        speakers = talk['speakers']
         body = '\\noindent{\\bf '
-        body += '%s}\\\\\n' % speakers[0].paper_title
+        body += '%s}\\\\\n' % speakers[0]['paper_title']
         for speaker in speakers:
-            body += '%s, %s; ' % (str(speaker), speaker.school)
+            body += '%s, %s; ' % ('%s, %s' % (speaker['last_name'], speaker['first_name']), speaker['school'])
         body = body[:-2]
         body += ' \\\\\n'
-        body += '%s %s in %s\n\\\\\nChair: %s \\\\\n' % (talk.day, talk.time, talk.track.room, talk.chair)
-        body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0].paper_abstract
+        body += '%s %s in %s\n\\\\\nChair: %s \\\\\n' % (talk['day'], talk['time'], talk['track'].room, talk['chair'])
+        body += '\\medskip\n\n%s\n\n\\bigskip\n\n' % speakers[0]['paper_abstract']
         return body
         
 class LaTeXBadges():

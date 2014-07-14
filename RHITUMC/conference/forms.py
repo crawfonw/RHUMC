@@ -110,7 +110,8 @@ class LaTeXProgramForm(forms.Form):
     squish = forms.IntegerField(initial=3, required=True)
     display_titles = forms.BooleanField(required=False, initial=True)
     display_schools = forms.BooleanField(required=False)
-    convert_unicode = forms.BooleanField(widget=forms.CheckboxInput(), initial=True)
+    convert_unicode = forms.BooleanField(widget=forms.CheckboxInput(), initial=True, required=False)
+    escape_latex = forms.BooleanField(widget=forms.CheckboxInput(), initial=False, required=False)
 
 class LaTeXBadgesForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())

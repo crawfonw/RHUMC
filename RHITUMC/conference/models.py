@@ -223,7 +223,7 @@ class Session(models.Model):
         ordering = ('day', 'time', 'track',)
     
     def __unicode__(self):
-        return u'Speakers: %s' % '; '.join([str(x) for x in self.speakers.all()])
+        return u'Speakers: %s' % '; '.join([unicode(x) for x in self.speakers.all()])
     
 class SpecialSession(models.Model):
     speaker = models.CharField(max_length=100)

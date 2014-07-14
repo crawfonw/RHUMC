@@ -43,7 +43,6 @@
       <table>
          <tr> <td> <a href="{% url conference-index %}"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
          <tr> <td> <a href="{% url conference-registration %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
-         <tr> <td> <a href="{% url conference-program %}"><font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
          {% for page in PAGES %}
          {% if page.is_link %}
          <tr> <td> <a href="{{ page.link }}"><font color="#800000" size="+1"><b>{{ page.title }}</b></font></a> </td> </tr>

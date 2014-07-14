@@ -33,6 +33,6 @@ urlpatterns = patterns('conference.views',
     url(r'^portal/batch/$', batch_update, name='batch-updater'),
     url(r'^portal/csvdump/$', csv_dump, name='csv-dump'),
     url(r'^portal/emailer/$', attendee_emailer, name='attendee-emailer'),
-    url(r'^portal/program/$', program, name='conference-program'),
+    #url(r'^portal/program/$', program, name='conference-program'),
     url(r'^portal/scheduler/$', generate_schedule, name='schedule-generator'),
 )

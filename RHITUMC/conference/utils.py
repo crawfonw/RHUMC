@@ -86,17 +86,21 @@ def zip_files_together(files, file_name):
             zip.write(f, arcname=(file_name + '.' + os.path.basename(f).split('.')[1]))
     return (tempfile_d, tempfile_path,)
 
-def clean_unicode_and_escape_latex_for_dict(model_dict):
-    for key,val in model_dict.item():
-        if isinstance(val, list):
-            model_dict[key] = escape_latex(val)
-        elif isinstance(val, unicode):
+def clean_unicode_for_dict(model_dict):
+    for key,val in model_dict.items():
+        if isinstance(val, unicode):
             model_dict[key] = convert_unicode(val)
     return model_dict
 
 def convert_unicode(unicode_string):
     return normalize('NFKD', unicode_string).encode('ascii', 'ignore') #use 'replace' for ?s instead of omitting
 
+def escape_latex_for_dict(model_dict):
+    for key,val in model_dict.items():
+        if isinstance(val, unicode) or isinstance(val, str):
+            model_dict[key] = escape_latex(val)
+    return model_dict
+
 def escape_latex(s):
-    return re.sub(LATEX_REGEX, lambda m: ''.join('%s' % CHARS[i] for i in m.groups()), s)
+    return re.sub(LATEX_REGEX, lambda m: ''.join('%s' % LATEX_RESERVED[i] for i in m.groups()), s)
 

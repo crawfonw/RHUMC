@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import model_to_dict
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -42,7 +43,7 @@ from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpFor
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
-from utils import clean_unicode_and_escape_latex_for_dict, compile_latex_to_pdf, str_to_file, zip_files_together
+from utils import clean_unicode_for_dict, compile_latex_to_pdf, escape_latex_for_dict, str_to_file, zip_files_together
 
 FORWARD_REGISTRATIONS = True
 
@@ -202,25 +203,32 @@ def generate_schedule(request):
                          ('display_schools', form.cleaned_data['display_schools']), \
                          ('squish', form.cleaned_data['squish'])})
             sessions = [model_to_dict(s) for s in Session.objects.filter(day__conference=conf)]
-            special_sessions = [model_to_dict(s) for s in SpecialSession.objects.filter(day__conference=conf)]
-            tracks = [model_to_dict(s) for s in Track.objects.filter(conference=conf)]
-            time_slots = [model_to_dict(s) for s in TimeSlot.objects.filter(conference=conf)]
-            days = [model_to_dict(s) for s in Day.objects.filter(conference=conf)]
+            special_sessions = SpecialSession.objects.filter(day__conference=conf)
+            tracks = Track.objects.filter(conference=conf)
+            time_slots = TimeSlot.objects.filter(conference=conf)
+            days = Day.objects.filter(conference=conf)
             
             for session in sessions:
-                session['chair'] = Attendee.objects.filter(id=session['chair'])
+                session['chair'] = Attendee.objects.get(id=session['chair'])
                 session['speakers'] = [model_to_dict(a) for a in Attendee.objects.filter(id__in=session['speakers'])]
-                
-            print sessions
+                session['track'] = Track.objects.get(id=session['track'])
+                session['day'] = Day.objects.get(id=session['day'])
+                session['time'] = TimeSlot.objects.get(id=session['time'])
             
             if form.cleaned_data['convert_unicode']:
                 for session in sessions:
-                    for speaker in session.speakers.all():
-                        speaker = clean_unicode_and_escape_latex_for_dict(speaker)
+                    session['speakers'] = map(clean_unicode_and_escape_latex_for_dict, session['speakers'])
             
-            l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
-            if l.errors is not None:
-                form._errors['non_field_errors'] = form.error_class([l.errors])
+            if form.cleaned_data['escape_latex']:
+                for session in sessions:
+                    session['speakers'] = map(clean_unicode_and_escape_latex_for_dict, session['speakers'])
+            try:
+                l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
+            except:
+                l = None
+            
+            if l is None:
+                form._errors[NON_FIELD_ERRORS] = form.error_class([u'An unexpected error occurred whilst generating the LaTeX file. This is most likely due to bad data. Try again and if the problem persists then verify your data in the Management System.'])
             else:
                 if action is None or action == 'tex':
                     response = HttpResponse(l, content_type='application/x-latex')
@@ -397,38 +405,3 @@ def register_attendee(request):
 def page(request, page_id):
     p = get_object_or_404(Page, pk=page_id)
     return generic_page(request, p.title, p.page_text)
-
-def program(request):
-    #WIP, probably broken right now
-    c = _get_current_conference()
-    if c is not None:
-        if c.show_program:
-            current_schedule = Track.objects.filter(conference=c)
-            days = Day.objects.filter(schedule=current_schedule)
-            time_slots = TimeSlot.objects.filter(schedule=current_schedule)
-            sessions = Session.objects.filter(day__in=days, time__in=time_slots)
-            
-            if days.count() == 0  or time_slots.count() == 0:
-                text = 'The schedule of times have not been set for this conference yet. Please check back later.'
-                return generic_page(request, 'Program', text)
-            
-            days_and_timeslots = []
-            for day in days:
-                d = [day, []]
-                for session in sessions:
-                    if session.day == day and session.time not in d[1]:
-                        d[1].append(session.time)
-                days_and_timeslots.append(d)
-            
-            return render_to_response('conference/program.html',
-                                      {'page_title': 'Program',
-                                       'sessions': sessions,
-                                       'days_and_timeslots': days_and_timeslots,
-                                       },
-                                       RequestContext(request))
-        else:
-            text = 'The schedule of times have not been set for this conference yet. Please check back later.'
-            return generic_page(request, 'Program', text)
-    else:
-        text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
-        return generic_page(request, 'Program', text)
