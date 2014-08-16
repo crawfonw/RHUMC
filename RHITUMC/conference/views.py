@@ -217,11 +217,11 @@ def generate_schedule(request):
             
             if form.cleaned_data['convert_unicode']:
                 for session in sessions:
-                    session['speakers'] = map(clean_unicode_and_escape_latex_for_dict, session['speakers'])
+                    session['speakers'] = map(clean_unicode_for_dict, session['speakers'])
             
             if form.cleaned_data['escape_latex']:
                 for session in sessions:
-                    session['speakers'] = map(clean_unicode_and_escape_latex_for_dict, session['speakers'])
+                    session['speakers'] = map(escape_latex_for_dict, session['speakers'])
             try:
                 l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
             except:

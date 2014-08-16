@@ -42,13 +42,13 @@
 	<label for="id_convert_unicode"><strong>Try to Convert Unicode Characters:</strong></label>
 	{{ form.convert_unicode }}
 	<br />
-	
+	{% comment %}
 	{{ form.escape_latex.errors }}
 	<label for="id_escape_latex"><strong>Escape Special LaTeX Characters:</strong></label>
 	{{ form.escape_latex }}
 	<p class="help">(Note: This will escape the following: &, %, $, #, _, {, }, ~, ^, \\. As this can screw up correct LaTeX syntax, use only if you know this will not affect the LaTeX users intended to type.)</p>
 	<br />
-	
+	{% endcomment %}
 	<input type="submit" value="Submit">
 </form>
 
