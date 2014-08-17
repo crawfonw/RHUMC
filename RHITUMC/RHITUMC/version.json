@@ -3,13 +3,13 @@
     "info": {
         "features": "See comments",
         "bugfixes": "See comments",
-        "comments": "https://github.com/crawfonw/RHUMC/releases/tag/v1.1-beta.2",
-	"updatetype": "minor; beta"
+        "comments": "https://github.com/crawfonw/RHUMC/releases/tag/v1.1",
+	"updatetype": "minor"
     },
     "author": {
         "name": "Nick Crawford",
         "email": "crawfonw@gmail.com"
     },
-    "version": "1.1-beta.2",
+    "version": "1.1",
     "remote_version": "https://raw.githubusercontent.com/crawfonw/RHUMC/v1.1/RHITUMC/RHITUMC/version.json"
 }

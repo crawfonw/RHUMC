@@ -39,18 +39,29 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+AUTH_PROFILE_MODULE = 'conference.UserProfile'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+
+# Anyone in the ADMIN tuple will receieve server error emails
+
+ADMINS = (
+#    ('Admin Name', 'admin@email.com'),
+)
+
+MANAGERS = ADMINS
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Try not to lose/modify it!
 # Adapted from https://gist.github.com/ndarville/3452907
 # For use on services like Heroku see comments on gist
+
 SECRET_FILE = os.path.join(BASE_DIR, 'secret.txt')
 try:
     SECRET_KEY = open(SECRET_FILE).read().strip()
 except IOError:
+    import random, string
     SECRET_KEY = ''.join([random.SystemRandom().choice("{}{}{}".format(string.ascii_letters, string.digits, string.punctuation)) for i in range(50)])
     secret = file(SECRET_FILE, 'w')
     secret.write(SECRET_KEY)
@@ -117,6 +128,43 @@ STATICFILES_DIRS = (
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates')
 )
+
+# A sample logging configuration. The only tangible logging
+# performed by this configuration is to send an email to
+# the site admins on every HTTP 500 error when DEBUG=False.
+# See http://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
+
+# Email server host and port
+# Use the python command below to use in testing
+# python -m smtpd -n -c DebuggingServer localhost:1025
+
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
 '''
 
 WSGI = '''
@@ -141,7 +189,10 @@ def create_wsgi():
     wsgi.close()
 
 def create_settings(is_test, hosts, db):
-    settings_doc = SETTINGS % (is_test, hosts, db)
+    if is_test:
+        settings_doc = SETTINGS % (is_test, ['localhost'], db)
+    else:
+        settings_doc = SETTINGS % (is_test, hosts, db)
     
     settings = file(os.path.join(BASE_DIR, 'settings.py'), 'w')
     settings.write(settings_doc)
@@ -178,4 +229,4 @@ if __name__ == "__main__":
         'HOST': '',
         'PORT': '',""" % db
     
-    main(args.t, '[]' if args.w is None else args.w, db)
+    main(args.t, "['localhost']" if args.w is None else args.w, db)
