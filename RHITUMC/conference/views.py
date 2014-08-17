@@ -387,7 +387,7 @@ def register_attendee(request):
                                     paper_title=f_paper_title, paper_abstract=f_paper_abstract, \
                                     is_submitted_for_best_of_competition=f_is_submitted_for_best_of_competition, \
                                     dietary_restrictions=f_dietary_restrictions, requires_housing=f_requires_housing, comments=f_comments,
-                                    max_degree=f_max_degree,)
+                                    max_degree=f_max_degree, has_been_paired_for_housing=False)
             
             if FORWARD_REGISTRATIONS and not settings.DEBUG:
                 _email_hosts_registration_info(new_attendee)
