@@ -20,19 +20,19 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from django.conf.urls import patterns, include, url
-from views import *
+def get_all_modules():
+    modules = get_nondjango_installed_apps()
+    modules.append(get_instance_name_from_settings())
+    return modules
 
-urlpatterns = patterns('conference.views',
-    url(r'^$', index, name='conference-index'),
-    url(r'^register/$', register_attendee, name='conference-registration'),
-    url(r'^page/(?P<page_id>[\d]+)/$', page, name='conference-page'),
-    
-    url(r'^portal/$', admin_portal, name='admin-portal'),
-    url(r'^portal/badges/$', generate_badges, name='badges-generator'),
-    url(r'^portal/batch/$', batch_update, name='batch-updater'),
-    url(r'^portal/csvdump/$', csv_dump, name='csv-dump'),
-    url(r'^portal/emailer/$', attendee_emailer, name='attendee-emailer'),
-    #url(r'^portal/program/$', program, name='conference-program'),
-    url(r'^portal/scheduler/$', generate_schedule, name='schedule-generator'),
-)
+def get_instance_name_from_settings():
+    from django.conf import settings
+    return settings.WSGI_APPLICATION.split('.')[0]
+
+def get_nondjango_installed_apps():
+    from django.conf import settings
+    apps = []
+    for app in settings.INSTALLED_APPS:
+        if 'django' not in app:
+            apps.append(app)
+    return apps

@@ -22,10 +22,11 @@
 
 from django import forms
 from conference.models import Attendee, Conference, Contactee
-from django.forms import ModelForm
 from django.forms.forms import NON_FIELD_ERRORS
 
 from django.utils.safestring import mark_safe
+
+from utils import which
 
 #https://gist.github.com/651080
 class EmptyChoiceField(forms.ChoiceField):
@@ -65,7 +66,7 @@ class AttendeeForm(forms.Form):
     is_submitted_for_best_of_competition = forms.BooleanField(required=False)
     
     dietary_restrictions = forms.CharField(required=False, widget=forms.Textarea)
-    requires_housing = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'Yes'), (False, 'No')), renderer=NoListRadioRenderer)) #this is unsafe in terms of form submission, need to fix
+    requires_housing = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'Yes'), (False, 'No')), renderer=NoListRadioRenderer), initial=False)
     #requires_housing = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=NoListRadioRenderer), choices=((True, 'Yes'), (False, 'No')), required=True, initial=None, empty_value=None) #'No' gets coerced into True, not sure why
     comments = forms.CharField(required=False, widget=forms.Textarea)
     
@@ -95,12 +96,22 @@ class AttendeeEmailerForm(forms.Form):
     host = forms.ModelChoiceField(queryset = Contactee.objects.filter(active_contact=True))
     email_subject = forms.CharField(max_length=100)
     email_body = forms.CharField(widget=forms.Textarea)
-    
-class LaTeXProgramForm(forms.Form):
+
+class CSVDumpForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    csv_fields = forms.CharField(widget=forms.Textarea)
+
+class LaTeXProgramForm(forms.Form):
+    action = None
+    if which('pdflatex') is not None:
+        action = forms.ChoiceField(choices=(('tex', 'LaTeX'), ('pdf', 'PDF'), ('all', 'Both PDF & LaTeX')), required=True)
+    conference = forms.ModelChoiceField(queryset = Conference.objects.all())
+    file_name = forms.CharField(initial='program', required=True)
     squish = forms.IntegerField(initial=3, required=True)
     display_titles = forms.BooleanField(required=False, initial=True)
     display_schools = forms.BooleanField(required=False)
+    convert_unicode = forms.BooleanField(widget=forms.CheckboxInput(), initial=True, required=False)
+    escape_latex = forms.BooleanField(widget=forms.CheckboxInput(), initial=False, required=False)
 
 class LaTeXBadgesForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
@@ -113,7 +124,7 @@ class BatchUpdateForm(forms.Form):
         
         schools = []
         school_tuples = []
-        for s in Attendee.objects.all().values('school'):
+        for s in Attendee.objects.all().order_by('school').values('school'):
             if s['school'] not in schools:
                 schools.append(s['school'])
                 school_tuples.append((s['school'], s['school']))

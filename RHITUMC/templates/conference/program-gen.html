@@ -2,8 +2,6 @@
 
 {% block content %}
 <br />
-<!-- <a href="{% url conference-program %}">HTML View of Program</a>
-<br /><br /> -->
 <form action="." method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ form.non_field_errors }}
@@ -11,6 +9,18 @@
 	{{ form.conference.errors }}
 	<label for="id_conference"><strong>Conference:</strong></label>
 	{{ form.conference }}
+	<br />
+	
+	{% if form.action %}
+	{{ form.action.errors }}
+	<label for="id_action"><strong>Download type:</strong></label>
+	{{ form.action }}
+	<br />
+	{% endif %}
+	
+	{{ form.file_name.errors }}
+	<label for="id_file_name"><strong>Name of output file:</strong></label>
+	{{ form.file_name }}
 	<br />
 	
 	{{ form.squish.errors }}
@@ -28,6 +38,17 @@
 	{{ form.display_schools }}
 	<br />
 	
+	{{ form.convert_unicode.errors }}
+	<label for="id_convert_unicode"><strong>Try to Convert Unicode Characters:</strong></label>
+	{{ form.convert_unicode }}
+	<br />
+	{% comment %}
+	{{ form.escape_latex.errors }}
+	<label for="id_escape_latex"><strong>Escape Special LaTeX Characters:</strong></label>
+	{{ form.escape_latex }}
+	<p class="help">(Note: This will escape the following: &, %, $, #, _, {, }, ~, ^, \\. As this can screw up correct LaTeX syntax, use only if you know this will not affect the LaTeX users intended to type.)</p>
+	<br />
+	{% endcomment %}
 	<input type="submit" value="Submit">
 </form>
 

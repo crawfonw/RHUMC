@@ -33,7 +33,7 @@
 
 </table>
 <table width="100%">
-<tr width="100%"><td width="20%" align="left"><font size="-1">{% if user.is_authenticated %}<a href="{% url admin-portal %}">Admin Portal</a> | <a href="{% url panel-logout %}">Logout</a>{% else %}<a href="{% url panel-login %}">Login</a>{% endif %}</font></td><td width="100%" align="right"><font color="#000000" size="-1"> <a href="http://www.terrehaute.in.gov/">Terre Haute, IN</a> </font></td></tr>
+<tr width="100%"><td width="20%" align="left"><font size="-1">{% if user.is_authenticated %}<a href="{% url "admin-portal" %}">Admin Portal</a> | <a href="{% url "panel-logout" %}">Logout</a>{% else %}<a href="{% url "panel-login" %}">Login</a>{% endif %}</font></td><td width="100%" align="right"><font color="#000000" size="-1"> <a href="http://www.terrehaute.in.gov/">Terre Haute, IN</a> </font></td></tr>
 <table>
 <hr>
 <table width="100%" border="0" cellspacing="5" cellpadding="5">
@@ -43,7 +43,7 @@
       <table>
          <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/2013/index.shtml"> <font color="#800000" size="+1"><b>Conference&nbspHome</b></font></a> </td> </tr>
          <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/2013/cfp.shtml"> <font color="#800000" size="+1"><b>Call For Papers</b></font></a> </td> </tr>
-         <tr> <td> <a href="{% url conference-registration %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
+         <tr> <td> <a href="{% url "conference-registration" %}"> <font color="#800000" size="+1"><b>Registration</b></font></a> </td> </tr>
          <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/2013/program.shtml"> <font color="#800000" size="+1"><b>Program</b></font></a> </td> </tr>
          <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/2013/hotel.shtml"> <font color="#800000" size="+1"><b>Accommodations</b></font></a> </td> </tr>
          <tr> <td> <a href="http://www.rose-hulman.edu/class/ma/web/mathconf/2013/map.shtml"> <font color="#800000" size="+1"><b>Maps</b></font></a> </td> </tr>

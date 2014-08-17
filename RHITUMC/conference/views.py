@@ -24,18 +24,26 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db.models.loading import get_model
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.forms.forms import NON_FIELD_ERRORS
+from django.forms.models import model_to_dict
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from django.core.mail import EmailMultiAlternatives, send_mass_mail
 
+import csv
 from datetime import datetime
+import os
+from shutil import rmtree
+import StringIO
 
-from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, LaTeXBadgesForm, LaTeXProgramForm
+from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
+from utils import clean_unicode_for_dict, compile_latex_to_pdf, escape_latex_for_dict, str_to_file, zip_files_together
 
 FORWARD_REGISTRATIONS = True
 
@@ -57,7 +65,7 @@ def _email_hosts_registration_info(attendee):
         from_email = 'mathconf@mathconf.csse.rose-hulman.edu'
         
         text_content = attendee.all_info()
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to, headers = {'Reply-To': attendee.email})
         msg.send()
         
 def _email_attendee_registration_info(attendee):
@@ -114,7 +122,67 @@ def attendee_emailer(request):
                               {'title': 'Email Attendees',
                                'form': form,
                                },
-                               RequestContext(request)) 
+                               RequestContext(request))
+    
+@login_required
+def csv_dump(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    if request.method == 'POST':
+        form = CSVDumpForm(request.POST)
+        if form.is_valid():
+            conf = form.cleaned_data['conference']
+            target_fields = map(lambda x: x.strip(), form.cleaned_data['csv_fields'].split(','))
+            
+            #conference_attendees = Attendee.objects.filter(conference=conf).iterator() #.iterator() if this gets huge (but it shouldn't...)
+            conference_attendees = Attendee.objects.filter(conference=conf)
+            model = conference_attendees.model
+            model_fields = [x.name for x in model._meta.fields]
+            
+            valid = True
+            headers = []
+            error_headers = []
+            for field in target_fields:
+                if field in model_fields:
+                    headers.append(field)
+                else:
+                    valid = False
+                    error_headers.append(field)
+            
+            if valid:
+                output = StringIO.StringIO()
+                writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            
+                writer.writerow(headers)
+                
+                for obj in conference_attendees:
+                    row = []
+                    for field in headers:
+                        val = getattr(obj, field)
+                        if callable(val):
+                            val = val()
+                        if type(val) == unicode:
+                            val = val.encode('utf-8')
+                        row.append(val)
+                    writer.writerow(row)
+                    print row
+                
+                response = HttpResponse(output.getvalue(), content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="%s.csv"' % conf.name
+                output.close()
+                
+                return response
+            else:
+                form._errors['csv_fields'] = form.error_class([u'Field error - field%s "%s" not present in %s model.' % ('s' if len(error_headers) > 1 else '', ', '.join(error_headers), model._meta.model_name)])
+    else:
+        form = CSVDumpForm()
+        form.fields['csv_fields'].initial = ','.join([x.name for x in Attendee._meta.fields])
+        
+    return render_to_response('conference/csv-dump.html',
+                              {'title': 'Attendee Data Dumper',
+                               'form' : form,
+                                },
+                              RequestContext(request))
 
 @login_required
 def generate_schedule(request):
@@ -125,21 +193,93 @@ def generate_schedule(request):
     if request.method == 'POST':
         form = LaTeXProgramForm(request.POST)
         if form.is_valid():
+            try:
+                action = form.cleaned_data['action']
+            except:
+                action = None
             conf = form.cleaned_data['conference']
+            file_name = form.cleaned_data['file_name']
             opts = dict({('display_titles', form.cleaned_data['display_titles']), \
                          ('display_schools', form.cleaned_data['display_schools']), \
                          ('squish', form.cleaned_data['squish'])})
-            sessions = Session.objects.filter(day__conference=conf)
+            sessions = [model_to_dict(s) for s in Session.objects.filter(day__conference=conf)]
             special_sessions = SpecialSession.objects.filter(day__conference=conf)
             tracks = Track.objects.filter(conference=conf)
             time_slots = TimeSlot.objects.filter(conference=conf)
             days = Day.objects.filter(conference=conf)
             
-            l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days)
-    
-            response = HttpResponse(l.generate_program(), content_type='application/x-latex')
-            response['Content-Disposition'] = 'attachment; filename="program.tex"'
-            return response
+            for session in sessions:
+                session['chair'] = Attendee.objects.get(id=session['chair'])
+                session['speakers'] = [model_to_dict(a) for a in Attendee.objects.filter(id__in=session['speakers'])]
+                session['track'] = Track.objects.get(id=session['track'])
+                session['day'] = Day.objects.get(id=session['day'])
+                session['time'] = TimeSlot.objects.get(id=session['time'])
+            
+            if form.cleaned_data['convert_unicode']:
+                for session in sessions:
+                    session['speakers'] = map(clean_unicode_for_dict, session['speakers'])
+            
+            if form.cleaned_data['escape_latex']:
+                for session in sessions:
+                    session['speakers'] = map(escape_latex_for_dict, session['speakers'])
+            try:
+                l = LaTeXProgram(opts, sessions, special_sessions, time_slots, tracks, days).generate_program()
+            except:
+                l = None
+            
+            if l is None:
+                form._errors[NON_FIELD_ERRORS] = form.error_class([u'An unexpected error occurred whilst generating the LaTeX file. This is most likely due to bad data. Try again and if the problem persists then verify your data in the Management System.'])
+            else:
+                if action is None or action == 'tex':
+                    response = HttpResponse(l, content_type='application/x-latex')
+                    response['Content-Disposition'] = 'attachment; filename="%s.tex"' % file_name
+                elif action == 'pdf':
+                    try:
+                        fd, path = compile_latex_to_pdf(l, file_name)
+                    except:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    try:
+                        pdf = os.fdopen(fd, 'rb')
+                        pdf_out = pdf.read()
+                        pdf.close()
+                    except OSError:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    
+                    response = HttpResponse(content_type='application/pdf')
+                    response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % file_name
+                    response.write(pdf_out)
+                    
+                    rmtree(os.path.split(path)[0])
+                elif action == 'all':
+                    try:
+                        tex_fd, tex_path = str_to_file(l, file_name, 'tex')
+                        tex = os.fdopen(tex_fd, 'rb')
+                        tex_out = tex.read()
+                        tex.close()
+                    except OSError:
+                        raise Http404('Error writing LaTeX code to file.')
+                    
+                    try:
+                        pdf_fd, pdf_path = compile_latex_to_pdf(l, file_name)
+                        pdf = os.fdopen(pdf_fd, 'rb')
+                        pdf_out = pdf.read()
+                        pdf.close()
+                    except OSError:
+                        raise Http404('Error compiling PDF file from LaTeX code.')
+                    
+                    try:
+                        zip_fd, zip_path = zip_files_together([pdf_path, tex_path], file_name)
+                        zip = os.fdopen(zip_fd, 'rb')
+                        zip_out = zip.read()
+                        zip.close()
+                    except OSError:
+                        raise Http404('Error zipping .pdf and .tex files together.')
+                    
+                    response = HttpResponse(content_type='application/zip')
+                    response['Content-Disposition'] = 'attachment; filename="%s.zip"' % file_name
+                    response.write(zip_out)
+                    
+                return response
     else:
         form = LaTeXProgramForm()
         
@@ -265,38 +405,3 @@ def register_attendee(request):
 def page(request, page_id):
     p = get_object_or_404(Page, pk=page_id)
     return generic_page(request, p.title, p.page_text)
-
-def program(request):
-    #WIP, probably broken right now
-    c = _get_current_conference()
-    if c is not None:
-        if c.show_program:
-            current_schedule = Track.objects.filter(conference=c)
-            days = Day.objects.filter(schedule=current_schedule)
-            time_slots = TimeSlot.objects.filter(schedule=current_schedule)
-            sessions = Session.objects.filter(day__in=days, time__in=time_slots)
-            
-            if days.count() == 0  or time_slots.count() == 0:
-                text = 'The schedule of times have not been set for this conference yet. Please check back later.'
-                return generic_page(request, 'Program', text)
-            
-            days_and_timeslots = []
-            for day in days:
-                d = [day, []]
-                for session in sessions:
-                    if session.day == day and session.time not in d[1]:
-                        d[1].append(session.time)
-                days_and_timeslots.append(d)
-            
-            return render_to_response('conference/program.html',
-                                      {'page_title': 'Program',
-                                       'sessions': sessions,
-                                       'days_and_timeslots': days_and_timeslots,
-                                       },
-                                       RequestContext(request))
-        else:
-            text = 'The schedule of times have not been set for this conference yet. Please check back later.'
-            return generic_page(request, 'Program', text)
-    else:
-        text = 'We are sorry, but currently there is no conference scheduled. Please check back later.'
-        return generic_page(request, 'Program', text)

@@ -40,12 +40,16 @@
         {% block nav-global %}{% endblock %}
     </div>
     <!-- END Header -->
-    {% block breadcrumbs %}
     <div class="breadcrumbs">
-    {% comment %} <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a> {% endcomment %}
-    {% if title %} &rsaquo; {{ title }}{% endif %}
-    </div>
+    {% block breadcrumbs %}
+    
+    {% if not atportal %}
+    	<a href="{% url 'admin-portal' %}">{% trans 'Portal' %}</a>
+    	{% if title %} &rsaquo; {{ title }}{% endif %}
+    {% endif %}
+    
     {% endblock %}
+    </div>
     {% endif %}
 
     {% block messages %}

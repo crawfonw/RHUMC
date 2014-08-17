@@ -1,0 +1,15 @@
+{
+    "app": "AutoUpdater",
+    "info": {
+        "features": "feature1, feature2",
+        "bugfixes": "bugfix1, bugfix2, bugfix3",
+        "comments": "comments on things",
+	"updatetype": "major"
+    },
+    "author": {
+        "name": "Nick Crawford",
+        "email": "crawfonw@gmail.com"
+    },
+    "version": "1.0",
+    "remote_version": "https://github.com/crawfonw/RHUMC"
+}
