@@ -21,12 +21,13 @@
 """
 
 from django import forms
-from conference.models import Attendee, Conference, Contactee
 from django.forms.forms import NON_FIELD_ERRORS
 
 from django.utils.safestring import mark_safe
 
-from utils import which
+from conference.models import Attendee, Conference, Contactee
+from conference.widgets import AddAnotherWidgetWrapper
+from conference.utils import which
 
 #https://gist.github.com/651080
 class EmptyChoiceField(forms.ChoiceField):
@@ -100,6 +101,17 @@ class AttendeeEmailerForm(forms.Form):
 class CSVDumpForm(forms.Form):
     conference = forms.ModelChoiceField(queryset = Conference.objects.all())
     csv_fields = forms.CharField(widget=forms.Textarea)
+
+class CSVImportForm(forms.Form):
+    conference = forms.ModelChoiceField(
+        queryset=Conference.objects.all(),
+        widget=AddAnotherWidgetWrapper(
+            forms.Select(),
+            Conference,
+        )
+    )
+    csv_fields = forms.CharField(widget=forms.Textarea)
+    csv_file = forms.FileField()
 
 class LaTeXProgramForm(forms.Form):
     action = None

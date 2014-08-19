@@ -39,7 +39,7 @@ import os
 from shutil import rmtree
 import StringIO
 
-from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpForm, LaTeXBadgesForm, LaTeXProgramForm
+from forms import AttendeeEmailerForm, AttendeeForm, BatchUpdateForm, CSVDumpForm, CSVImportForm, LaTeXBadgesForm, LaTeXProgramForm
 from models import Attendee, Conference, Contactee, Day, Page, Session, SpecialSession, Track, TimeSlot
 
 from LaTeX import LaTeXBadges, LaTeXProgram
@@ -180,6 +180,24 @@ def csv_dump(request):
         
     return render_to_response('conference/csv-dump.html',
                               {'title': 'Attendee Data Dumper',
+                               'form' : form,
+                                },
+                              RequestContext(request))
+
+@login_required
+def csv_import(request):
+    if not (request.user.is_staff or request.user.is_superuser): 
+        return HttpResponseRedirect(reverse('conference-index'))
+    if request.method == 'POST':
+        form = CSVImportForm(request.POST)
+        if form.is_valid():
+            pass
+        else:
+            pass
+    else:
+        form = CSVImportForm()
+    return render_to_response('conference/csv-dump.html',
+                              {'title': 'Attendee Importer',
                                'form' : form,
                                 },
                               RequestContext(request))
