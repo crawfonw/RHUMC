@@ -14,3 +14,6 @@ RHITUMC/RHITUMC/wsgi.py
 .pydevproject
 
 .settings/*
+*.sqlite3
+
+RHITUMC/secret.txt
