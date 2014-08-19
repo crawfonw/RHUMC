@@ -20,19 +20,85 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test import Client, TestCase
 
-Replace this with more appropriate tests for your application.
-"""
+class TestPagesDoLoadProperly(TestCase):
+    
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('admin', 'admin@test.com', 'aaa')
+        self.user.is_superuser = True
+        self.user.save()
+    
+    def testAdminPagesDoRequireLogin(self):
+        response =  self.client.get(reverse('admin-portal'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('admin-portal'))
+        
+        response =  self.client.get(reverse('badges-generator'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('badges-generator'))
+        
+        response =  self.client.get(reverse('batch-updater'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('batch-updater'))
+        
+        response =  self.client.get(reverse('csv-dump'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('csv-dump'))
+        
+        response =  self.client.get(reverse('attendee-emailer'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('attendee-emailer'))
+        
+        response =  self.client.get(reverse('schedule-generator'))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('schedule-generator'))
+        
+    def testAdminPagesDoRedirectIfNonStaffIsLoggedIn(self):
+        User.objects.create_user('noadmin', 'noadmin@test.com', 'aaa')
+        self.client.login(username='noadmin', password='aaa')
+        
+        response =  self.client.get(reverse('admin-portal'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+        
+        response =  self.client.get(reverse('badges-generator'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+        
+        response =  self.client.get(reverse('batch-updater'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+        
+        response =  self.client.get(reverse('csv-dump'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+        
+        response =  self.client.get(reverse('attendee-emailer'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+        
+        response =  self.client.get(reverse('schedule-generator'))
+        self.assertRedirects(response, reverse('conference-index'), status_code=302, target_status_code=200)
+    
+    def testAdminPortalPageDoesLoadAfterLogin(self):
+        self.client.login(username='admin', password='aaa')
+        
+        response =  self.client.get(reverse('admin-portal'))
+        self.assertEqual(response.status_code, 200)
+        
+        response =  self.client.get(reverse('badges-generator'))
+        self.assertEqual(response.status_code, 200)
+        
+        response =  self.client.get(reverse('batch-updater'))
+        self.assertEqual(response.status_code, 200)
+        
+        response =  self.client.get(reverse('csv-dump'))
+        self.assertEqual(response.status_code, 200)
+        
+        response =  self.client.get(reverse('attendee-emailer'))
+        self.assertEqual(response.status_code, 200)
+        
+        response =  self.client.get(reverse('schedule-generator'))
+        self.assertEqual(response.status_code, 200)
 
-from django.test import TestCase
-
-
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+    def testRegistrationPageDoesLoad(self):
+        response = self.client.get(reverse('conference-registration'))
+        self.assertEqual(response.status_code, 200)
+        
+class TestAttendeeRegistration(TestCase):
+    
+    def setUp(self):
+        pass

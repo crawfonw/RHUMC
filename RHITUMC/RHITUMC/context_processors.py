@@ -24,6 +24,7 @@ from datetime import datetime
 #from django.db.models import F
 
 from conference.models import Conference, Contactee, Page
+from RHITUMC import VERSION
 
 def project_context_processor(request):
     
@@ -37,4 +38,5 @@ def project_context_processor(request):
             'CONF': c,
             'CONTACTS': Contactee.objects.filter(active_contact=True),
             'PAGES': Page.objects.all(),
+            'VERSION': VERSION['version'],
             }
