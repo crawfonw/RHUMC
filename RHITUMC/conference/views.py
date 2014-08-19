@@ -190,15 +190,19 @@ def csv_import(request):
         return HttpResponseRedirect(reverse('conference-index'))
     if request.method == 'POST':
         form = CSVImportForm(request.POST)
+        print 'Sortables:'
+        print request.POST.getlist('butts[]')
         if form.is_valid():
             pass
         else:
             pass
     else:
         form = CSVImportForm()
-    return render_to_response('conference/csv-dump.html',
+        form.fields['csv_fields'].initial = ','.join([x.name for x in Attendee._meta.fields])
+    return render_to_response('conference/csv-import.html',
                               {'title': 'Attendee Importer',
                                'form' : form,
+                               'model_fields': Attendee._meta.fields
                                 },
                               RequestContext(request))
 

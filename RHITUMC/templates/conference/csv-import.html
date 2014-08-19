@@ -1,7 +1,38 @@
 {% extends "admin/base_site.html" %}
 
-{% block extra_headers %}
+{% block extrahead %}
 <script src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
+<meta charset="utf-8">
+  <title>jQuery UI Sortable - Connect lists</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <style>
+  #sortable1, #sortable2 {
+    border: 1px solid #eee;
+    width: 142px;
+    min-height: 20px;
+    list-style-type: none;
+    margin: 0;
+    padding: 5px 0 0 0;
+    float: left;
+    margin-right: 10px;
+  }
+  #sortable1 li, #sortable2 li {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 1.2em;
+    width: 120px;
+  }
+  </style>
+  <script>
+  $(function() {
+    $( "#sortable1, #sortable2" ).sortable({
+      connectWith: ".connectedSortable"
+    }).disableSelection();
+  });
+  </script>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +50,26 @@ indicate with "0".
 	{{ form.conference }}
 	<br />
 	
+	{{ form.csv_fields.errors }}
+	<label for="id_csv_fields"><strong>csv_fields:</strong></label>
+	{{ form.csv_fields }}
+	<br />
 	
+	{{ form.csv_file.errors }}
+	<label for="id_csv_file"><strong>csv_file:</strong></label>
+	{{ form.csv_file }}
+	<br />
+	
+	Included:
+	<ul id="sortable1" class="connectedSortable">
+	{% for f in model_fields %}
+	<li class="ui-state-default" id="id_{{ forloop.counter }}">{{ f.name }}</li>
+	{% endfor %}
+	</ul>
+ 
+ 	Excluded:
+	<ul id="sortable2" class="connectedSortable">
+	</ul>
 	
 	<input type="submit" value="Submit">
 </form>
