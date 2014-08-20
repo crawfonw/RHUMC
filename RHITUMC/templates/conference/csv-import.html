@@ -33,6 +33,20 @@
     }).disableSelection();
   });
   </script>
+  <script type="text/javascript" charset="utf-8">
+  $(document).ready(function() {
+    $("#sortable1").sortable({
+      update: function(event, ui) {
+        var serial = $('#sortable1').sortable('serialize');
+    $.ajax({
+      url: "",
+      type: "post",
+      data: serial + '&csrfmiddlewaretoken={{ csrf_token }}'
+    });
+      },
+    }).disableSelection();
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -63,7 +77,7 @@ indicate with "0".
 	Included:
 	<ul id="sortable1" class="connectedSortable">
 	{% for f in model_fields %}
-	<li class="ui-state-default" id="id_{{ forloop.counter }}">{{ f.name }}</li>
+	<li class="ui-state-default" id="mfield_{{ forloop.counter }}">{{ f.name }}</li>
 	{% endfor %}
 	</ul>
  

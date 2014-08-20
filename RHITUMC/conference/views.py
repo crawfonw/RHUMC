@@ -190,8 +190,6 @@ def csv_import(request):
         return HttpResponseRedirect(reverse('conference-index'))
     if request.method == 'POST':
         form = CSVImportForm(request.POST)
-        print 'Sortables:'
-        print request.POST.getlist('butts[]')
         if form.is_valid():
             pass
         else:
